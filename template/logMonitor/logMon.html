@@ -1,0 +1,134 @@
+{% extends 'Base/base_site.html' %}
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+      <!-- Small boxes (Stat box) -->
+      <div class="row">
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3 id="user_count"></h3>
+
+              <p>用户访问次数</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-person-add"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3 id="cluster_count"><sup style="font-size: 20px"></sup></h3>
+
+              <p>集群操作次数</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3 id="user_op_count"></h3>
+
+              <p>用户操作次数</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-clipboard"></i> 
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3 id="job_count"></h3>
+
+              <p>任务数量</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-ios-paper-outline"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
+      <!-- /.row -->
+      <!-- Main row 下面可以放其他的图表 -->
+ 		   
+      <!-- /.row (main row) -->
+      <div class="row">
+        <section class="col-lg-7 connectedSortable">
+            <!-- Custom tabs (Charts with tabs)-->
+       
+            <div class="nav-tabs-custom">
+              <!-- Tabs within a box -->
+              <ul class="nav nav-tabs pull-right">
+                <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
+                <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>
+                <li><a href="/mosaic_chart"> Mosaic</a></li>  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
+                <li class="pull-left header"><i class="fa fa-inbox"></i> Sales</li>
+              </ul>
+              <div class="tab-content no-padding">
+                <!-- Morris chart - Sales -->
+                <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"></div>
+                <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
+                <!--div class="chart tab-pane" id="mosaic-chart" style="position: relative; height: 300px;"--> 
+              </div>
+            </div>
+            <!-- /.nav-tabs-custom -->
+        </section>
+      </div>
+
+    </section>
+    <!-- /.content -->
+{% endblock %}
+
+{% block js_function %}
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/static/bower_components/chart.js/d3.js" charset="utf-8"> </script>
+<script type="text/javascript">
+    $.ajax({
+      type:"POST",
+      url:"http://127.0.0.1:8000/get_log_data/",
+      data:{
+        "time":12
+      },
+      success:function(data){
+          $('#user_count').html(data.user_count);
+          $('#cluster_count').html(data.cluster_count);
+          $('#user_op_count').html(data.user_op_count);
+          $('#job_count').html(data.job_count);
+      },
+      error:function(data){
+        alert("get data error!");
+      }
+    });
+</script>
+
+{% endblock %}
