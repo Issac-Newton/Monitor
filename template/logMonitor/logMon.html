@@ -82,6 +82,7 @@
       <!-- Main row 下面可以放其他的图表 -->
  		   
       <!-- /.row (main row) -->
+      <!--图表选择区 -->
       <div class="row">
         <section class="col-lg-7 connectedSortable">
             <!-- Custom tabs (Charts with tabs)-->
@@ -91,7 +92,8 @@
               <ul class="nav nav-tabs pull-right">
                 <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
                 <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>
-                <li><a href="/mosaic_chart"> Mosaic</a></li>  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
+                <!--li><a href="/mosaic_chart"> Mosaic</a></li-->  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
+                <li><a href="#" onclick="to_mosaic()"> Mosaic</a></li>  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
                 <li class="pull-left header"><i class="fa fa-inbox"></i> Sales</li>
               </ul>
               <div class="tab-content no-padding">
@@ -103,6 +105,41 @@
             </div>
             <!-- /.nav-tabs-custom -->
         </section>
+
+        <!-- 时间选择 -->
+        <section class="col-lg-5 connectedSortable">
+              <!--The calendar -->
+         <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">时间选择</h3>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+            <form class="form-horizontal">
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="pickdate" class="col-sm-2 control-label">日期</label>
+
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" id="pickdate" value="2018-09-03">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="picktime" class="col-sm-2 control-label">时刻</label>
+
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" id="picktime" value="15:00">
+                  </div>
+                </div>
+              </div>
+              <!-- /.box-body -->
+              <div class="box-footer">
+                <button type="submit" class="btn btn-info pull-right" onclick="log_load()">选择</button>
+              </div>
+              <!-- /.box-footer -->
+            </form>
+          </div>
+        </section>
       </div>
 
     </section>
@@ -112,23 +149,59 @@
 {% block js_function %}
 <script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
 <script src="/static/bower_components/chart.js/d3.js" charset="utf-8"> </script>
+<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
+<script src="/static/bower_components/time_choose/datedropper.min.js"></script>
+<script src="/static/bower_components/time_choose/timedropper.min.js"></script>
+
 <script type="text/javascript">
-    $.ajax({
-      type:"POST",
-      url:"http://127.0.0.1:8000/get_log_data/",
-      data:{
-        "time":12
-      },
-      success:function(data){
-          $('#user_count').html(data.user_count);
-          $('#cluster_count').html(data.cluster_count);
-          $('#user_op_count').html(data.user_op_count);
-          $('#job_count').html(data.job_count);
-      },
-      error:function(data){
-        alert("get data error!");
+
+    var flag = true;
+    var day,time;      
+    function log_load(){
+      day = $("#pickdate").val();
+      if(flag){   //第一次加载页面
+          time = "15:00";
+          flag = false;
+      } 
+      else {
+        time = $("#picktime").val();
       }
+
+      $.ajax({
+        type:"POST",
+        url:"http://127.0.0.1:8000/get_log_data/",
+        data:{
+          "day":day,
+          "time":time
+        },
+        success:function(data){
+            $('#user_count').html(data.user_count);
+            $('#cluster_count').html(data.cluster_count);
+            $('#user_op_count').html(data.user_op_count);
+            $('#job_count').html(data.job_count);
+        },
+        error:function(data){
+          alert("get data error!");
+        }
+      });  
+    }
+    
+    function to_mosaic(){
+      window.location.href="/mosaic_chart/?"+"day=" + day + "&time=" + time;
+    }
+
+    log_load();
+    $("#pickdate").dateDropper({
+            animate: false,
+            format: 'Y-m-d',
+            maxYear: '2020'
+          });
+    $("#picktime").timeDropper({
+      meridians: false,
+      format: 'HH:mm',
     });
+
+
 </script>
 
 {% endblock %}

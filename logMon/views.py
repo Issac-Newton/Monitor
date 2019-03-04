@@ -11,9 +11,13 @@ def index(request):
 #获取相应时间的json数据，应该返回一个时间，这里先忽略不计
 @csrf_exempt
 def get_log_data(request):
+	day = request.POST.get("day",None)
 	time = request.POST.get("time",None)   #这个就是前端点击之后返回的时间
+	hour = time[0:2]
+	minute = time[3:4]
+	print(day + "-" + hour + "-" + minute)
 	#open函数打开文件的路径其实是以项目所在目录为根目录
-	with open('static/log/log.json') as log_f:
+	with open('static/log/'+ day + "/" + hour + "-" + minute + ".json") as log_f:
 		log_root = json.load(log_f)
 		user_info_root = log_root['USER_INFO']
 		user = user_info_root['user']
