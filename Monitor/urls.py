@@ -26,4 +26,5 @@ urlpatterns = [
     path('logMon/',logMon_views.index),
     path('get_log_data/',logMon_views.get_log_data),
     path('mosaic_chart/',logMon_views.mosaic_chart),
+    path('cluster_info/',logMon_views.cluster_info),
 ]

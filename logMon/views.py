@@ -50,3 +50,6 @@ def get_log_data(request):
 
 def mosaic_chart(request):
 	return render(request,'charts/logMon/mosaic.html')
+
+def cluster_info(request):
+	return render(request,'charts/logMon/grid_op.html')

@@ -1,0 +1,133 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+	<style>
+		.y.axisRight text{
+			fill:steelblue;
+		}
+		.y.axisLeft text{
+			fill:orange;
+		}
+		.axis path,
+		.axis line{
+			fill:none;
+			stroke:#000;
+			shape-rendering: crispEdges;
+		}
+
+		.bar1{
+			fill:green;
+		}
+		.x.axis path{
+			display:none;
+		}
+	</style>
+{% endblock %}
+
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+	<section class="content">
+		<div class="col-md-12">
+			<div id="grid-hist">
+			</div>
+		</div>
+	</section>
+{% endblock %}
+
+
+{% block js_function %}
+<script src="/static/bower_components/chart.js/d3.js" charset="utf-8"> </script>
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
+<script type="text/javascript">
+	var day = localStorage.getItem("day");
+	var time = localStorage.getItem("time");
+	time = time.slice(0,2) + "-" + time.slice(3,4);
+
+	//var width = 1000;
+	//var height = 500;
+
+	
+		
+
+	d3.json("/static/log/" + day + "/" + time + ".json",function(error,root){
+		var cluster = root.CLUSTER_INFO;
+		var cluster_name = [];
+		var cluster_op_count = [];
+
+		for(var i in cluster){
+			cluster_name.push(cluster[i].name);
+			cluster_op_count.push(cluster[i].count);
+		}
+
+		var margin = {top:80,right:80,bottom:80,left:80},
+		hist_width = 600 - margin.left - margin.right,
+		hist_height = 400 - margin.top - margin.bottom;
+
+		var min = d3.min(cluster_op_count);
+		var max = d3.max(cluster_op_count);
+
+		//定义比例尺
+		var x = d3.scale.ordinal()
+			.rangeRoundBands([0,hist_width],.1);   //rangeRoundBands设定值域并且有取整的作用
+
+		x.domain(cluster_name);
+
+		var y = d3.scale.linear().domain([0,max]).range([hist_height,0]);
+
+		//定义坐标轴
+		var xAxis = d3.svg.axis()
+					.scale(x)
+					.orient("bottom");
+
+		var yAxis = d3.svg.axis().scale(y).ticks(6).orient("left");
+
+
+		var svg = d3.select("#grid-hist")
+			.append("svg")
+			.attr("width",hist_width+margin.left+margin.right)
+			.attr("height",hist_height+margin.top+margin.bottom)
+			.append("g")
+			.attr("class","graph")
+			.attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+		svg.append("g")
+			.attr("class","x axis")
+			.attr("transform","translate(0," + hist_height + ")")
+			.call(xAxis);
+
+		svg.append("g")
+			.attr("class","y axis axisLeft")
+			.attr("transform","translate(0,0)")
+			.call(yAxis)
+			.append("text")
+			.attr("y",6)
+			.attr("dy","-2em")
+			.style("text-anchor","end")
+			.style("text-anchor","end")
+			.text("Counts");
+
+		bars = svg.selectAll(".bar").data(cluster).enter();
+
+		bars.append("rect")
+			.attr("class","bar1")
+			.attr("x",function(d){return x(d.name);})
+			.attr("width",x.rangeBand())
+			.attr("y",function(d){return y(d.count);})
+			.attr("height",function(d,i,j){return hist_height - y(d.count);});
+
+	});
+</script>
+{% endblock %}
+
