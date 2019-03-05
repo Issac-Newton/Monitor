@@ -167,6 +167,9 @@
         time = $("#picktime").val();
       }
 
+      localStorage.setItem("day",day);
+      localStorage.setItem("time",time);
+
       $.ajax({
         type:"POST",
         url:"http://127.0.0.1:8000/get_log_data/",
@@ -187,7 +190,8 @@
     }
     
     function to_mosaic(){
-      window.location.href="/mosaic_chart/?"+"day=" + day + "&time=" + time;
+      //window.location.href="/mosaic_chart/?"+"day=" + day + "&time=" + time;
+      window.location.href="/mosaic_chart";
     }
 
     log_load();

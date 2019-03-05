@@ -22,11 +22,15 @@
 {% endblock %}
 
 {% block js_function %}
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
 <script src="/static/bower_components/chart.js/d3.js" charset="utf-8"> </script>
 <script src="/static/js/get_url_para.js"> </script>
 <script type="text/javascript">
-    var day = $.getUrlParam("day");
-    var time = $.getUrlParam("time");
+    //var day = $.getUrlParam("day");
+    //var time = $.getUrlParam("time");
+    var day = localStorage.getItem("day");
+    var time = localStorage.getItem("time");
     time = time.slice(0,2) + "-" + time.slice(3,4);
     var width = 1000;
     var height = 500;
