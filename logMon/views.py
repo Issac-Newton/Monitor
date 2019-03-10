@@ -53,3 +53,6 @@ def mosaic_chart(request):
 
 def cluster_info(request):
 	return render(request,'charts/logMon/grid_op.html')
+
+def user_info(request):
+	return render(request,'charts/logMon/user_op.html')

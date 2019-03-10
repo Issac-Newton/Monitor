@@ -17,26 +17,26 @@
 				"count":	1
 			}],
 		"op":	[{
-				"op":	"SCE_BJOBS",
-				"count":	3
+				"label":	"SCE_BJOBS",
+				"value":	3
 			}, {
-				"op":	"SCE_BJOBS_ENC",
-				"count":	1
+				"label":	"SCE_BJOBS_ENC",
+				"value":	1
 			}, {
-				"op":	"SCE_CMD_LISTNODES",
-				"count":	2
+				"label":	"SCE_CMD_LISTNODES",
+				"value":	2
 			}, {
-				"op":	"SCE_CMD_MREMOTE",
-				"count":	8
+				"label":	"SCE_CMD_MREMOTE",
+				"value":	8
 			}, {
-				"op":	"SCE_CMD_REMOTE",
-				"count":	4
+				"label":	"SCE_CMD_REMOTE",
+				"value":	4
 			}, {
-				"op":	"SCE_FXP_LOGIN",
-				"count":	9
+				"label":	"SCE_FXP_LOGIN",
+				"value":	9
 			}, {
-				"op":	"SCE_JOB_LISTRES_ENC",
-				"count":	1
+				"label":	"SCE_JOB_LISTRES_ENC",
+				"value":	1
 			}]
 	},
 	"CLUSTER_INFO":	[{

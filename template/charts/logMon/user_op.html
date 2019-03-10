@@ -1,0 +1,128 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+	<style>
+	.bubble circle{
+		stroke: black;
+		stroke-width: 2px;
+	}
+
+	.bubble text{
+		fill: black;
+		font-size: 14px;
+		font-weight: bold;
+		font-family: arial;
+		text-anchor: middle;
+	}
+
+	</style>
+{% endblock %}
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+	<section class="content">
+		<div class="col-md-6">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Bubble Chart</h3>
+				</div>
+				<div class="box-body">
+					<div id="Bubble">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="box box-info">
+				<div class="box-header with-border">
+					<h3 class="box-title">Dount Chart</h3>
+				</div>
+				<div class="box-body">
+					<div class = "chart" id="donut" style="height: 300px; position: relative;">
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}
+
+{% block js_function %}
+<script src="/static/bower_components/chart.js/d3.js" charset="utf-8"> </script>
+<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
+<script src="/static/bower_components/raphael/raphael.min.js"></script>
+<script src="/static/bower_components/morris.js/morris.min.js"></script>
+<script type="text/javascript">
+	var day = localStorage.getItem("day");
+	var time = localStorage.getItem("time");
+	time = time.slice(0,2) + "-" + time.slice(3,4);
+
+	var user_root,op;
+	var user_data = {};
+	d3.json("/static/log/" + day + "/" + time + ".json",function(error,root){
+		user_root = root.USER_INFO;
+		user_data["children"] = user_root.user;
+		op = user_root.op;
+
+		var donut = new Morris.Donut({
+	      element: 'donut',
+	      resize: true,
+	      data: op,
+	      hideHover: 'auto'
+	    });
+
+		var width = 450;
+	    var height = 300;
+	    var svg = d3.select("#Bubble")
+	    			.append("svg")
+	    			.attr("width",width)
+	    			.attr("height",height);
+
+	    var pack = d3.layout.pack()
+	    			.size([width,height])
+	    			.sort(null)
+	    			.value(function(d){
+	    				return d.count;
+	    			})
+	    			.padding(4);
+
+	    var nodes = pack.nodes(user_data);
+			
+		var color = d3.scale.category20c();
+
+		var bubbles = svg.selectAll(".bubble")
+			.data(nodes.filter(function(d) { 
+				return !d.children; 
+			}))
+			.enter()
+			.append("g")
+			.attr("class","bubble");
+
+		bubbles.append("circle")
+			.style("fill",function(d,i){
+				return color(i);
+			})
+			.attr("cx",function(d){ return d.x; })
+			.attr("cy",function(d){ return d.y; })
+			.attr("r",function(d){ return d.r; });
+
+		bubbles.append("text")
+			.attr("x",function(d){ return d.x; })
+			.attr("y",function(d){ return d.y; })
+			.text(function(d){
+				return d.name + ":" + d.count;
+			});	
+	});
+</script>
+{% endblock %}

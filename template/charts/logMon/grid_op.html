@@ -104,9 +104,6 @@
 	//var width = 1000;
 	//var height = 500;
 
-	
-		
-
 	d3.json("/static/log/" + day + "/" + time + ".json",function(error,root){
 		var cluster = root.CLUSTER_INFO;
 		var cluster_name = [];
@@ -206,7 +203,7 @@
 		var color = d3.scale.category10();
 
 		var gAll = svg.append("g")
-						.attr("transform","translate(" + (pie_width/2) + ",200)");  //圆心坐标
+						.attr("transform","translate(" + (pie_width/2+50) + ",190)");  //圆心坐标
 
 		var arcs = gAll.selectAll(".arcs_g")
 					.data(pie(arch_data))
