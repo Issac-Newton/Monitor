@@ -54,78 +54,82 @@
     var job_root = {"name":"JOB"};
     
     d3.json("/static/log/" + day + "/" + time + ".json",function(error,root){
-      //这里需要对数据进行进一步整理，生成treemap需要的数据
-      user_root["children"] = root.USER_INFO.user;  //user数据生成
-      var temp = root.USER_INFO.op;
-      
-      //user_op数据生成
-      var op = [];
-      for(var i in temp){
-        var op_t = {};
-        op_t["name"] = temp[i].op;
-        op_t["count"] = temp[i].count;
-        op.push(op_t);
-      }
-      user_op_root["children"] = op;
-      
-      temp = root.CLUSTER_INFO;
-      //cluster数据生成
-      var cluster = [];
-      for(var i in temp){
-        var cluster_t = {};
-        cluster_t["name"] = temp[i].name;
-        cluster_t["count"] = temp[i].count;
-        cluster.push(cluster_t);
-      }
-      cluster_root["children"] = cluster;
-      
-      temp = root.JOB_INFO.jobs;
-      //job数据生成
-      var jobs = [];
-      for(var i in temp){
-        var job_t = {};
-        job_t["name"] = temp[i].job;
-        job_t["count"] = temp[i].count;
-        jobs.push(job_t);
-      }
-      job_root["children"] = jobs;
-      
-      root_data["children"].push(user_root);
-      root_data["children"].push(user_op_root);
-      root_data["children"].push(cluster_root);
-      root_data["children"].push(job_root);
-      
-      console.log(root_data);
-      var nodes = treemap.nodes(root_data);
-      var links = treemap.links(nodes);
-    
-      console.log(nodes);
-      console.log(links);
-      
-      var color = d3.scale.category10();
-      
-      var groups = svg.selectAll("g")
-              .data(nodes.filter(function(d){ return !d.children; }))
-              .enter()
-              .append("g");
-      
-      var rects = groups.append("rect")
-              .attr("class","nodeRect")
-              .attr("x",function(d){ return d.x; })
-              .attr("y",function(d){ return d.y; })
-              .attr("width",function(d){return d.dx; })
-              .attr("height",function(d){ return d.dy; })
-              .style("fill", function(d,i) { return color(d.parent.name);});
-              
-      var texts = groups.append("text")
-                .attr("class","nodeName")
-                .attr("x",function(d){ return d.x; })
-                .attr("y",function(d){ return d.y; })
-                .attr("dx", "0.5em")
-                .attr("dy", "1.5em")
-                .text(function(d){
-                  return d.name + " " + d.count;
-                });
-    });
+    	if(error){
+    		alert("指定时间的json文件错误，请到相应目录检查文件。");
+    	}
+    	else{
+	      //这里需要对数据进行进一步整理，生成treemap需要的数据
+	      user_root["children"] = root.USER_INFO.user;  //user数据生成
+	      var temp = root.USER_INFO.op;
+	      
+	      //user_op数据生成
+	      var op = [];
+	      for(var i in temp){
+	        var op_t = {};
+	        op_t["name"] = temp[i].label;
+	        op_t["count"] = temp[i].value;
+	        op.push(op_t);
+	      }
+	      user_op_root["children"] = op;
+	      
+	      temp = root.CLUSTER_INFO;
+	      //cluster数据生成
+	      var cluster = [];
+	      for(var i in temp){
+	        var cluster_t = {};
+	        cluster_t["name"] = temp[i].name;
+	        cluster_t["count"] = temp[i].count;
+	        cluster.push(cluster_t);
+	      }
+	      cluster_root["children"] = cluster;
+	      
+	      temp = root.JOB_INFO.jobs;
+	      //job数据生成
+	      var jobs = [];
+	      for(var i in temp){
+	        var job_t = {};
+	        job_t["name"] = temp[i].job;
+	        job_t["count"] = temp[i].count;
+	        jobs.push(job_t);
+	      }
+	      job_root["children"] = jobs;
+	      
+	      root_data["children"].push(user_root);
+	      root_data["children"].push(user_op_root);
+	      root_data["children"].push(cluster_root);
+	      root_data["children"].push(job_root);
+	      
+	      console.log(root_data);
+	      var nodes = treemap.nodes(root_data);
+	      var links = treemap.links(nodes);
+	    
+	      console.log(nodes);
+	      console.log(links);
+	      
+	      var color = d3.scale.category10();
+	      
+	      var groups = svg.selectAll("g")
+	              .data(nodes.filter(function(d){ return !d.children; }))
+	              .enter()
+	              .append("g");
+	      
+	      var rects = groups.append("rect")
+	              .attr("class","nodeRect")
+	              .attr("x",function(d){ return d.x; })
+	              .attr("y",function(d){ return d.y; })
+	              .attr("width",function(d){return d.dx; })
+	              .attr("height",function(d){ return d.dy; })
+	              .style("fill", function(d,i) { return color(d.parent.name);});
+	              
+	      var texts = groups.append("text")
+	                .attr("class","nodeName")
+	                .attr("x",function(d){ return d.x; })
+	                .attr("y",function(d){ return d.y; })
+	                .attr("dx", "0.5em")
+	                .attr("dy", "1.5em")
+	                .text(function(d){
+	                  return d.name + " " + d.count;
+	                });
+	    }});
 </script>
 {% endblock %}

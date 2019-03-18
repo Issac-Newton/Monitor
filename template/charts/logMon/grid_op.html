@@ -105,76 +105,80 @@
 	//var height = 500;
 
 	d3.json("/static/log/" + day + "/" + time + ".json",function(error,root){
-		var cluster = root.CLUSTER_INFO;
-		var cluster_name = [];
-		var cluster_op_count = [];
-		var cluster_queue = [];
-
-		for(var i in cluster){
-			cluster_name.push(cluster[i].name);
-			cluster_op_count.push(cluster[i].count);
-			cluster_queue.push(cluster[i].Queuename);
+		if(error){
+			alert("指定时间的json文件错误，请到相应目录检查文件。");
 		}
+		else{
+			var cluster = root.CLUSTER_INFO;
+			var cluster_name = [];
+			var cluster_op_count = [];
+			var cluster_queue = [];
 
-		var margin = {top:40,right:80,bottom:40,left:40},
-		hist_width = 550 - margin.left - margin.right,
-		hist_height = 400 - margin.top - margin.bottom;
+			for(var i in cluster){
+				cluster_name.push(cluster[i].name);
+				cluster_op_count.push(cluster[i].count);
+				cluster_queue.push(cluster[i].Queuename);
+			}
 
-		var min = d3.min(cluster_op_count);
-		var max = d3.max(cluster_op_count);
+			var margin = {top:40,right:80,bottom:40,left:40},
+			hist_width = 550 - margin.left - margin.right,
+			hist_height = 400 - margin.top - margin.bottom;
 
-		//定义比例尺
-		var x = d3.scale.ordinal()
-			.rangeRoundBands([0,hist_width],.1);   //rangeRoundBands设定值域并且有取整的作用
+			var min = d3.min(cluster_op_count);
+			var max = d3.max(cluster_op_count);
 
-		x.domain(cluster_name);
+			//定义比例尺
+			var x = d3.scale.ordinal()
+				.rangeRoundBands([0,hist_width],.1);   //rangeRoundBands设定值域并且有取整的作用
 
-		var y = d3.scale.linear().domain([0,max]).range([hist_height,0]);
+			x.domain(cluster_name);
 
-		//定义坐标轴
-		var xAxis = d3.svg.axis()
-					.scale(x)
-					.orient("bottom");
+			var y = d3.scale.linear().domain([0,max]).range([hist_height,0]);
 
-		var yAxis = d3.svg.axis().scale(y).ticks(6).orient("left");
+			//定义坐标轴
+			var xAxis = d3.svg.axis()
+						.scale(x)
+						.orient("bottom");
 
-		var svg = d3.select("#grid-hist")
-			.append("svg")
-			.attr("width",hist_width+margin.left+margin.right)
-			.attr("height",hist_height+margin.top+margin.bottom)
-			.append("g")
-			.attr("class","graph")
-			.attr("transform","translate(" + margin.left + "," + margin.top + ")");
+			var yAxis = d3.svg.axis().scale(y).ticks(6).orient("left");
 
-		svg.append("g")
-			.attr("class","x axis")
-			.attr("transform","translate(0," + hist_height + ")")
-			.call(xAxis)
-			.append("text");
+			var svg = d3.select("#grid-hist")
+				.append("svg")
+				.attr("width",hist_width+margin.left+margin.right)
+				.attr("height",hist_height+margin.top+margin.bottom)
+				.append("g")
+				.attr("class","graph")
+				.attr("transform","translate(" + margin.left + "," + margin.top + ")");
 
-		svg.append("g")
-			.attr("class","y axis axisLeft")
-			.attr("transform","translate(0,0)")
-			.call(yAxis)
-			.append("text")
-			.attr("y",6)
-			.attr("dy","-2em")
-			.style("text-anchor","end")
-			.style("text-anchor","end")
-			.text("Counts");
+			svg.append("g")
+				.attr("class","x axis")
+				.attr("transform","translate(0," + hist_height + ")")
+				.call(xAxis)
+				.append("text");
 
-		bars = svg.selectAll(".bar").data(cluster).enter();
+			svg.append("g")
+				.attr("class","y axis axisLeft")
+				.attr("transform","translate(0,0)")
+				.call(yAxis)
+				.append("text")
+				.attr("y",6)
+				.attr("dy","-2em")
+				.style("text-anchor","end")
+				.style("text-anchor","end")
+				.text("Counts");
 
-		bars.append("rect")
-			.attr("class","bar1")
-			.attr("x",function(d){return x(d.name);})
-			.attr("width",x.rangeBand())
-			.attr("y",function(d){return y(d.count);})
-			.attr("height",function(d,i,j){return hist_height - y(d.count);})
-			.on("click",function(d,i){
-				draw_pie(cluster_queue[i],cluster_name[i]);
-			});
+			bars = svg.selectAll(".bar").data(cluster).enter();
 
+			bars.append("rect")
+				.attr("class","bar1")
+				.attr("x",function(d){return x(d.name);})
+				.attr("width",x.rangeBand())
+				.attr("y",function(d){return y(d.count);})
+				.attr("height",function(d,i,j){return hist_height - y(d.count);})
+				.on("click",function(d,i){
+					draw_pie(cluster_queue[i],cluster_name[i]);
+				});
+		}
 	});
 
 	function draw_pie(data,name){

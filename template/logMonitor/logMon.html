@@ -134,7 +134,7 @@
               </div>
               <!-- /.box-body -->
               <div class="box-footer">
-                <button type="submit" class="btn btn-info pull-right" onclick="log_load()">选择</button>
+                <button type="button" class="btn btn-info pull-right" onclick="log_load()">选择</button>
               </div>
               <!-- /.box-footer -->
             </form>
@@ -152,11 +152,14 @@
 <script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
 <script src="/static/bower_components/time_choose/datedropper.min.js"></script>
 <script src="/static/bower_components/time_choose/timedropper.min.js"></script>
-
 <script type="text/javascript">
 
     var flag = true;
     var day,time;      
+    /*var h3_user = document.getElementById("user_count");
+    var h3_cluster = document.getElementById("cluster_count");
+    var h3_user_op = document.getElementById("user_op_count");
+    var h3_job = document.getElementById("job_count");*/
     function log_load(){
       day = $("#pickdate").val();
       if(flag){   //第一次加载页面
@@ -168,24 +171,26 @@
       }
 
       localStorage.setItem("day",day);
-      localStorage.setItem("time",time);
-
+      localStorage.setItem("time",time);  
       $.ajax({
-        type:"POST",
-        url:"http://127.0.0.1:8000/get_log_data/",
-        data:{
-          "day":day,
-          "time":time
-        },
-        success:function(data){
-            $('#user_count').html(data.user_count);
-            $('#cluster_count').html(data.cluster_count);
-            $('#user_op_count').html(data.user_op_count);
-            $('#job_count').html(data.job_count);
-        },
-        error:function(data){
-          alert("get data error!");
-        }
+            type:"POST",
+            url:"http://127.0.0.1:8000/get_log_data/",
+            data:{
+              "day":day,
+              "time":time
+            },
+            success:function(data){
+                $('#user_count').html(data.user_count);
+                $('#cluster_count').html(data.cluster_count);
+                $('#user_op_count').html(data.user_op_count);
+                $('#job_count').html(data.job_count);
+                if(data.user_count==0 && data.cluster_count==0 && data.user_op_count==0 && data.job_count==0){
+                    alert("指定时间的json文件错误，请到相应目录检查文件。");    
+                }
+            },
+            error:function(data){
+              alert("指定时间的json文件错误，请到相应目录检查文件。");
+            }
       });  
     }
     
@@ -193,18 +198,18 @@
       //window.location.href="/mosaic_chart/?"+"day=" + day + "&time=" + time;
       window.location.href="/mosaic_chart";
     }
-
+    
     log_load();
-    $("#pickdate").dateDropper({
+
+     $("#pickdate").dateDropper({
             animate: false,
             format: 'Y-m-d',
             maxYear: '2020'
-          });
+      });
     $("#picktime").timeDropper({
       meridians: false,
       format: 'HH:mm',
     });
-
 
 </script>
 
