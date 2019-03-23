@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'testStatic',
     'begin',
     'logMon',
+    'realtime',
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,5 @@
 import os
-import json
+import json,calendar
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -10,6 +10,12 @@ def index(request):
 
 
 #获取相应时间的json数据，应该返回一个时间，这里先忽略不计
+def i_to_s(n):
+	if n < 10:
+		return '0' + str(n)
+	else:
+		return str(n)
+
 @csrf_exempt
 def get_log_data(request):
 	day = request.POST.get("day",None)
@@ -57,6 +63,66 @@ def get_log_data(request):
 					'cluster_count':0,
 					'job_count':0
 				})
+
+@csrf_exempt
+def get_dm_data(request):
+	day = request.POST.get("day",None)
+	month = day[0:7]
+	monthRange = calendar.monthrange(int(day[0:4]),int(day[5:7]))
+
+	d_user = []
+	d_cluster = []
+	d_op = []
+	d_job = []
+	m_user = []
+	m_op = []
+	m_cluster = []
+	m_job = []
+
+	day_file_list = os.listdir("static/day/" + day + "/")
+	for i in range(0,24,1):
+		name = str(i) + ".json"
+		if name in day_file_list:
+			with open("static/day/" + day + "/" + name) as f:
+				data = json.load(f)
+				d_user.append(data['user'])
+				d_op.append(data['op'])
+				d_cluster.append(data['cluster'])
+				d_job.append(data['job'])
+		else:
+			d_user.append(0)
+			d_op.append(0)
+			d_cluster.append(0)
+			d_job.append(0)
+
+	month_file_list = os.listdir("static/month/")
+	days = monthRange[1]
+	for i in range(1, days+1, 1):
+		name = day[0:8] + i_to_s(i) + ".json"
+		if name in month_file_list:
+			with open("static/month/" + name) as mf:
+				data = json.load(mf)
+				m_user.append(data['user'])
+				m_op.append(data['op'])
+				m_cluster.append(data['cluster'])
+				m_job.append(data['job'])
+		else:
+			m_user.append(0)
+			m_op.append(0)
+			m_cluster.append(0)
+			m_job.append(0)
+
+	return JsonResponse({
+			'duser':d_user,
+			'dop':d_op,
+			'dcluster':d_cluster,
+			'djob':d_job,
+			'mdays':days,
+			'muser':m_user,
+			'mop':m_op,
+			'mcluster':m_cluster,
+			'mjob':m_job
+		})
 
 def mosaic_chart(request):
 	return render(request,'charts/logMon/mosaic.html')

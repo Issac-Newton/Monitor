@@ -29,8 +29,25 @@
 			</header>
 
 			<div class="content-wrapper" style="background-color: white">
-				<img src="/static/img/pintu2.jpg" style="position:relative;margin-left:40px;margin-top:50px" width=50% height=auto> 
+				<div class="col-md-12">
+					<section class="col-md-6">
+						<img src="/static/img/pintu2.jpg" style="position:relative;margin-left:10px;margin-top:70px" width=100% height=auto> 
+					</section>
+					<section class="col-md-2">
+						<button type="button" class="btn btn-block btn-primary btn-lg" style="position:relative;margin-left:80px;margin-top:170px" onclick="logMon()"> 日志分析 </button>
+						<button type="button" class="btn btn-block btn-danger btn-lg" style="position:relative;margin-left:80px;margin-top:80px" onclick="realtime()"> 实时监控 </button>
+					</section>
+				</div>
 			</div>
 		</div>
+
+		<script type="text/javascript">
+			function logMon(){
+				window.location.href="/logMon";
+			}
+			function realtime(){
+				window.location.href="/realtime";
+			}
+		</script>
 	</body>
 </html>

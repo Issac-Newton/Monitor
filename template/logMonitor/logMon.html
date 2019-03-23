@@ -90,16 +90,16 @@
             <div class="nav-tabs-custom">
               <!-- Tabs within a box -->
               <ul class="nav nav-tabs pull-right">
-                <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
-                <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>
+                <li class="active"><a href="#day-chart" data-toggle="tab">day</a></li>
+                <li><a href="#month-chart" data-toggle="tab">month</a></li>
                 <!--li><a href="/mosaic_chart"> Mosaic</a></li-->  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
                 <li><a href="#" onclick="to_mosaic()"> Mosaic</a></li>  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
                 <li class="pull-left header"><i class="fa fa-inbox"></i> Sales</li>
               </ul>
               <div class="tab-content no-padding">
                 <!-- Morris chart - Sales -->
-                <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"></div>
-                <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
+                <div class="chart tab-pane active" id="day-chart" style="position: relative; height: 300px;"></div>
+                <div class="chart tab-pane" id="month-chart" style="position: relative; height: 300px;"></div>
                 <!--div class="chart tab-pane" id="mosaic-chart" style="position: relative; height: 300px;"--> 
               </div>
             </div>
@@ -201,7 +201,7 @@
     
     log_load();
 
-     $("#pickdate").dateDropper({
+    $("#pickdate").dateDropper({
             animate: false,
             format: 'Y-m-d',
             maxYear: '2020'
@@ -210,6 +210,392 @@
       meridians: false,
       format: 'HH:mm',
     });
+
+    
+    var day_user = [],
+        day_op = [],
+        day_cluster = [],
+        day_job = [],Max;
+
+    var month_user = [],
+        month_op = [],
+        month_cluster = [],
+        month_job = [];
+
+    function lineChart(id) { // <-1A
+      var _chart = {};
+
+      var _width = 600, _height = 300, // <-1B
+              _margins = {top: 30, left: 50, right: 30, bottom: 30},
+              _x, _y,
+              _data = [],
+              _colors = d3.scale.category10(),
+              _svg,
+              _bodyG,
+              _line;
+
+      _chart.render = function () { // <-2A
+          if (!_svg) {
+              _svg = d3.select(id).append("svg") // <-2B
+                      .attr("height", _height)
+                      .attr("width", _width);
+
+              renderAxes(_svg);
+
+              defineBodyClip(_svg);
+          }
+
+          renderBody(_svg);
+      };
+
+      function renderAxes(svg) {
+          var axesG = svg.append("g")
+                  .attr("class", "axes");
+
+          renderXAxis(axesG);
+
+          renderYAxis(axesG);
+      }
+      
+      function renderXAxis(axesG){
+          var xAxis = d3.svg.axis()
+                  .scale(_x.range([0, quadrantWidth()]))
+                  .orient("bottom");        
+
+          axesG.append("g")
+                  .attr("class", "x axis")
+                  .attr("transform", function () {
+                      return "translate(" + xStart() + "," + yStart() + ")";
+                  })
+                  .call(xAxis);
+                  
+          d3.selectAll("g.x g.tick")
+              .append("line")
+                  .classed("grid-line", true)
+                  .attr("x1", 0)
+                  .attr("y1", 0)
+                  .attr("x2", 0)
+                  .attr("y2", - quadrantHeight());
+      }
+      
+      function renderYAxis(axesG){
+          var yAxis = d3.svg.axis()
+                  .scale(_y.range([quadrantHeight(), 0]))
+                  .orient("left");
+                  
+          axesG.append("g")
+                  .attr("class", "y axis")
+                  .attr("transform", function () {
+                      return "translate(" + xStart() + "," + yEnd() + ")";
+                  })
+                  .call(yAxis);
+                  
+           d3.selectAll("g.y g.tick")
+              .append("line")
+                  .classed("grid-line", true)
+                  .attr("x1", 0)
+                  .attr("y1", 0)
+                  .attr("x2", quadrantWidth())
+                  .attr("y2", 0);
+      }
+
+      function defineBodyClip(svg) { // <-2C
+          var padding = 5;
+
+          svg.append("defs")
+                  .append("clipPath")
+                  .attr("id", "body-clip")
+                  .append("rect")
+                  .attr("x", 0 - padding)
+                  .attr("y", 0)
+                  .attr("width", quadrantWidth() + 2 * padding)
+                  .attr("height", quadrantHeight());
+      }
+
+      function renderBody(svg) { // <-2D
+          if (!_bodyG)
+              _bodyG = svg.append("g")
+                      .attr("class", "body")
+                      .attr("transform", "translate(" 
+                          + xStart() + "," 
+                          + yEnd() + ")") // <-2E
+                      .attr("clip-path", "url(#body-clip)");        
+
+          renderLines();
+
+          renderDots();
+      }
+
+      function renderLines() {
+          _line = d3.svg.line() //<-4A
+                          .x(function (d) { return _x(d.x); })
+                          .y(function (d) { return _y(d.y); });
+                          
+          _bodyG.selectAll("path.line")
+                      .data(_data)
+                  .enter() //<-4B
+                  .append("path")                
+                  .style("stroke", function (d, i) { 
+                      return _colors(i); //<-4C
+                  })
+                  .attr("class", "line");
+
+          _bodyG.selectAll("path.line")
+                  .data(_data)
+                  .transition() //<-4D
+                  .attr("d", function (d) { return _line(d); });
+      }
+
+      function renderDots() {
+          _data.forEach(function (list, i) {
+              _bodyG.selectAll("circle._" + i) //<-4E
+                          .data(list)
+                      .enter()
+                      .append("circle")
+                      .attr("class", "dot _" + i);
+
+              _bodyG.selectAll("circle._" + i)
+                      .data(list)                    
+                      .style("stroke", function (d) { 
+                          return _colors(i); //<-4F
+                      })
+                      .transition() //<-4G
+                      .attr("cx", function (d) { return _x(d.x); })
+                      .attr("cy", function (d) { return _y(d.y); })
+                      .attr("r", 4.5);
+          });
+      }
+
+      function xStart() {
+          return _margins.left;
+      }
+
+      function yStart() {
+          return _height - _margins.bottom;
+      }
+
+      function xEnd() {
+          return _width - _margins.right;
+      }
+
+      function yEnd() {
+          return _margins.top;
+      }
+
+      function quadrantWidth() {
+          return _width - _margins.left - _margins.right;
+      }
+
+      function quadrantHeight() {
+          return _height - _margins.top - _margins.bottom;
+      }
+
+      _chart.width = function (w) {
+          if (!arguments.length) return _width;
+          _width = w;
+          return _chart;
+      };
+
+      _chart.height = function (h) { // <-1C
+          if (!arguments.length) return _height;
+          _height = h;
+          return _chart;
+      };
+
+      _chart.margins = function (m) {
+          if (!arguments.length) return _margins;
+          _margins = m;
+          return _chart;
+      };
+
+      _chart.colors = function (c) {
+          if (!arguments.length) return _colors;
+          _colors = c;
+          return _chart;
+      };
+
+      _chart.x = function (x) {
+          if (!arguments.length) return _x;
+          _x = x;
+          return _chart;
+      };
+
+      _chart.y = function (y) {
+          if (!arguments.length) return _y;
+          _y = y;
+          return _chart;
+      };
+
+      _chart.addSeries = function (series) { // <-1D
+          _data.push(series);
+          return _chart;
+      };
+
+      return _chart; // <-1E
+    }
+
+    function draw_day(){
+      var width = 600,height = 300,margin = {top: 30, left: 50, right: 30, bottom: 30};
+      Max = Math.max(d3.max(day_user),d3.max(day_op),d3.max(day_cluster),d3.max(day_job));
+
+      var x = d3.scale.linear().domain([0, 23]);
+
+      var y = d3.scale.linear()
+                .domain([0,Max])
+                .range([height-margin.top-margin.bottom,0]);
+
+      var numberOfSeries = 4,points = 24,data = [];
+
+      function insert_data(count){
+          data.push(d3.range(points).map(function (i) {
+              return {x: i, y: count[i]};
+          }));  
+      }
+      
+      insert_data(day_user);
+      insert_data(day_op);
+      insert_data(day_cluster);
+      insert_data(day_job);
+      
+      var chart = lineChart("#day-chart") 
+                  .x(x).y(y);
+
+      data.forEach(function (series){
+          chart.addSeries(series);
+      });
+
+      chart.render();
+    }
+
+    function draw_month(days){
+      var width = 600,height = 300,margin = {top: 30, left: 50, right: 30, bottom: 30};
+      Max = Math.max(d3.max(month_user),d3.max(month_op),d3.max(month_cluster),d3.max(month_job));
+
+      var x = d3.scale.linear().domain([1, days]);  //每个月的天数不同
+
+      var y = d3.scale.linear()
+                .domain([0,Max])
+                .range([height-margin.top-margin.bottom,0]);
+
+      var numberOfSeries = 4,data = [];
+
+      function insert_data(count){
+          data.push(d3.range(days).map(function (i) {
+              return {x: i+1, y: count[i]};
+          }));  
+      }
+      
+      insert_data(month_user);
+      insert_data(month_op);
+      insert_data(month_cluster);
+      insert_data(month_job);
+      
+      var chart = lineChart("#month-chart") 
+                  .x(x).y(y);
+
+      data.forEach(function (series){
+          chart.addSeries(series);
+      });
+
+      chart.render();
+    }
+
+    function get_dm_data(){
+      day = $("#pickdate").val();
+      $.ajax({
+            type:"POST",
+            url:"http://127.0.0.1:8000/get_dm_data/",
+            data:{
+              "day":day
+            },
+            success:function(data){
+              var mdays = data.mdays;
+              day_user = data.duser;
+              day_op = data.dop;
+              day_cluster = data.dcluster;
+              day_job = data.djob;
+              month_user = data.muser;
+              month_op = data.mop;
+              month_cluster = data.mcluster;
+              month_job = data.mjob;
+
+              draw_day();
+              draw_month(mdays);
+            },
+            error:function(){
+              alert("指定时间的json文件错误，请到相应目录检查文件。"); 
+            }
+      });
+    }
+
+    get_dm_data();
+    
+    /*var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");*/
+
+     /*           
+    var day_svg = d3.select("#day-chart")
+                  .append("svg")
+                  .attr("width",width)
+                  .attr("height",height)
+                  .append("g")
+                  .attr("class","graph");
+
+    day_svg.append("g")
+           .attr("class","x axis")
+           .attr("transform",function(){
+                return "translate(" + margin.left + "," + (height-margin.bottom) + ")";
+           })
+           .call(xAxis);
+
+    d3.selectAll("g.x g.tick")
+      .append("line")
+      .classed("grid-line",true)
+      .attr("x1",0)
+      .attr("y1",0)
+      .attr("x2",0)
+      .attr("y2",- (height-margin.top-margin.bottom));
+
+
+    day_svg.append("g")
+            .attr("class","y axis")
+            .attr("transform",function(){
+                return "translate(" + margin.left + "," + margin.top + ")";
+            })
+            .call(yAxis);
+
+    d3.selectAll("g.y g.tick")
+      .append("line")
+      .classed("grid-line",true)
+      .attr("x1",0)
+      .attr("y1",0)
+      .attr("x2",(width-margin.left-margin.right))
+      .attr("y2",0);
+
+    var padding = 5;
+
+    svg.append("defs")
+            .append("clipPath")
+            .attr("id", "body-clip")
+            .append("rect")
+            .attr("x", 0 - padding)
+            .attr("y", 0)
+            .attr("width", (width-margin.left-margin.right) + 2 * padding)
+            .attr("height", (height-margin.top-margin.bottom));
+
+    var body = day_svg.append("g")
+                      .attr("class","body")
+                      .attr("transform","translate(" + margin.left + "," + margin.top + ")")
+                      .attr("clip-path","url(#body-clip)");
+
+    var line = d3.svg.line()
+                  .x(function(d){ return x(d.x); })
+                  .y(function(d){ return y(d.y);});
+
+    body.selectAll("path.line")
+        .data()*/
+
 
 </script>
 
