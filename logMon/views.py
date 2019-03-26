@@ -1,9 +1,12 @@
 import os
 import json,calendar
+import warnings
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
+
+warnings.filterwarnings("ignore")
 
 def index(request):
 	return render(request,'logMonitor/logMon.html')

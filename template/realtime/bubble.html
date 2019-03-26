@@ -1,0 +1,167 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+	<style>
+	.back_ground{
+		background: #3E5151;  /* fallback for old browsers */
+		background: -webkit-linear-gradient(to right, #DECBA4, #3E5151);  /* Chrome 10-25, Safari 5.1-6 */
+		background: linear-gradient(to right, #DECBA4, #3E5151); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+	}
+	.page-head-line {
+	    font-size: 40px;
+	    text-transform: uppercase;
+	    color: #000;
+	    letter-spacing: 4px;
+	    font-weight: 800;
+	    padding-bottom: 20px;
+	    border-bottom: 0px solid #00CA79;
+	    margin-bottom: 10px;
+	}
+	</style>
+{% endblock %}
+
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+ 	<h1 class="page-head-line" align="center"> 集群实时数据 </h1>
+	<div id="container" style="min-width:400px;height:400px"></div>
+{% endblock %}
+
+{% block js_function %}
+	<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script-->	
+	
+	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/highcharts-more.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+	<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/themes/dark-unica.js"></script>
+	<script type="text/javascript">
+	var status_single;
+	var curr_usage;
+	var predict_usage;
+
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
+	function activeLastPointToolip(chart) {
+		var points = chart.series[0].points;
+		chart.tooltip.refresh(points[points.length -1]);
+	}
+
+	Highcharts.chart('container', {
+		chart: {
+			type: 'bubble',
+			zoomType: 'xy',
+			events:{
+				load:function(){
+					var series = this.series[0],
+						chart = this;
+					activeLastPointToolip(chart);
+
+					setInterval(function(){
+						var x = (new Date()).getTime();
+							//y = Math.random(),
+							//z = Math.random();
+				
+						get_data();
+
+						var point = {};
+						point.x = x;
+						point.y = curr_usage;
+						point.z = 20;   //z可以用来体现误差程度
+
+						if(status_single == 3)  //status为3表示获取数据的时候出现异常
+						{
+							point.color = '#F9BF45';
+						}
+						else if(status_single == 2)  //先把这个定义为模型判断为异常,具体数值可能还要改
+						{
+							point.color = '#CB1B45';
+						}
+						else  //正常数据
+						{
+							point.color = '#90B44B';
+						}
+						series.addPoint(point,true,true);
+						activeLastPointToolip(chart);
+					},1500);
+				}
+			}
+		},
+	
+		xAxis: {
+			type: 'datetime',
+			tickPixelInterval: 150
+		},
+		title: {
+			text: 'CPU使用率'
+		},
+		tooltip: {
+			formatter: function () {
+				return '<b>' + this.series.name + '</b><br/>' +
+					Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+					Highcharts.numberFormat(this.y, 2);
+			}
+		},
+		series: [{
+			name:'CPU使用率',
+			// 每个气泡包含三个值，x，y，z；其中 x，y用于定位，z 用于计算气泡大小
+			data: (function(){
+				var data = [],
+					time = (new Date()).getTime(),
+					i;
+
+				for(i=-19;i<=0;i += 1){
+					data.push({
+						x: time + i*1000,
+						y: Math.random(),
+						z: Math.random() * 100
+					});
+				}
+				return data;
+			}())
+		}]
+	});
+
+	function get_data(){
+		$.ajax({
+			tpye:"POST",
+			url: "http://127.0.0.1:8000/get_rt_data/",
+			data:{
+			},
+			success:function(data){
+				status_single = data.status;
+				if(status_single == 3)
+				{
+					curr_usage = 0;
+					predict_usage = 0;
+				}
+				else
+				{
+					curr_usage = parseFloat(data.curr_usage);
+					predict_usage = parseFloat(data.pred_usage);	
+				}
+				//alert("success");
+				//alert(curr_usage);
+				//setTimeout 可以控制函数调用时间间隔
+			},
+			error:function(){
+				alert("get_data error!");
+			}
+		})
+	}
+</script>
+{% endblock %}

@@ -103,7 +103,22 @@
 
 		    var nodes = pack.nodes(user_data);
 				
-			var color = d3.scale.category20c();
+			//var color = d3.scale.category20c();
+			let colors = d3
+		      .scale.ordinal()
+		      .range([
+		      	'#f15a22',
+		        '#19b5fe',
+		        '#013243',
+		        '#3a539b',
+		        '#5333ed',
+		        '#03c9a9',
+		        '#fef160',
+		        '#f22613',
+		        '#ec644b',
+		        '#d35400',
+		        '#a537fd'
+		      ]);
 
 			var bubbles = svg.selectAll(".bubble")
 				.data(nodes.filter(function(d) { 
@@ -115,11 +130,11 @@
 
 			bubbles.append("circle")
 				.style("fill",function(d,i){
-					return color(i);
+					return colors(i + 1);
 				})
 				.attr("cx",function(d){ return d.x; })
 				.attr("cy",function(d){ return d.y; })
-				.attr("r",function(d){ return d.r; });
+				.attr("r",function(d){ return d.r; });  //半径大小
 
 			bubbles.append("text")
 				.attr("x",function(d){ return d.x; })

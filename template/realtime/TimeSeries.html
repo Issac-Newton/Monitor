@@ -1,0 +1,224 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+	<style>
+	.back_ground{
+		background: #3E5151;  /* fallback for old browsers */
+		background: -webkit-linear-gradient(to right, #DECBA4, #3E5151);  /* Chrome 10-25, Safari 5.1-6 */
+		background: linear-gradient(to right, #DECBA4, #3E5151); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+	}
+	.page-head-line {
+	    font-size: 40px;
+	    text-transform: uppercase;
+	    color: #000;
+	    letter-spacing: 4px;
+	    font-weight: 800;
+	    padding-bottom: 20px;
+	    border-bottom: 0px solid #00CA79;
+	    margin-bottom: 10px;
+	}
+	</style>
+{% endblock %}
+
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+ 	<h1 class="page-head-line" align="center"> 集群实时数据 </h1>
+
+	<div id="container" style="min-width:400px;height:410px;position:absolute;left:18%;top:19%;width:68%"></div>
+	<div>
+		<button id="bubble" onclick="bubble()" style="position:absolute;left:21%;top:88%"> Bubble </button>
+	</div>
+{% endblock %}
+
+{% block js_function %}
+<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script-->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://img.hcharts.cn/highcharts/highcharts-more.js"></script>
+<script src="https://img.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
+<script src="https://img.hcharts.cn/highstock/highstock.js"></script>
+<script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+<script src="https://img.hcharts.cn/highcharts/themes/dark-unica.js"></script>
+<script type="text/javascript">
+	var status_all = -1;
+	var curr_usage;
+	var predict_usage;
+
+	function bubble(){
+		location.href = "/Bubble/";
+	}	
+
+	//图表区域
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+	function activeLastPointToolip(chart) {
+		var points = chart.series[0].points;
+		chart.tooltip.refresh(points[points.length -1]);
+	}
+
+	//该图只显示真实数据,预测数据放到数据详情里面显示
+
+	var hc = new Highcharts.stockChart('container',  {
+		chart: {
+			borderColor: '#EBBA95',
+            borderWidth: 4,
+            //上面是图表边框
+			type: 'spline',   //说明此图是'曲线图'
+			marginRight: 10,
+			events: {
+				load: function () {
+					var series = this.series[0],
+						chart = this;
+
+									
+					activeLastPointToolip(chart);
+
+					setInterval(function () {
+						var x = (new Date()).getTime(), // 当前时间
+							y = Math.random();
+
+						get_data();
+
+						var point = {};
+						point.x = x;
+						point.y = curr_usage;
+						point.marker = {
+							enabled : 'true',
+							radius: 6
+						};
+
+						if(status_all == 3)  //status为3表示获取数据的时候出现异常
+						{
+							point.marker.fillColor = '#F9BF45';
+						}
+						else if(status_all == 2)  //先把这个定义为模型判断为异常,具体数值可能还要改
+						{
+							point.marker.fillColor = '#CB1B45';
+						}
+						else  //正常数据
+						{
+							point.marker.fillColor = '#90B44B';
+						}
+						//series.addPoint([x, y], true, true);
+						series.addPoint(point, true, true);
+						activeLastPointToolip(chart);
+					}, 5000);
+				},
+
+				click:function(){  //点击事件
+					alert("查看详细数据");
+					location.href = "/Detail/";
+				}
+
+			},
+		},
+		rangeSelector: {
+			selected: 0, // 默认展示最近一月
+			buttonTheme: {
+				display: 'none', // 不显示按钮
+			},
+			buttons: [
+				{
+					type: 'all',
+					count: 1,
+					text: '10sec',
+				},
+			],
+			inputEnabled: false, // 不显示日期输入框
+		},
+		title: {
+			text: '实时数据',
+			margin: 5,
+			floatint:true,
+			y:20,
+			style: {
+				fontWeight: 'bold'
+			}
+		},
+		xAxis: {
+			type: 'datetime',
+			tickPixelInterval: 150
+		},
+		yAxis: {
+			title: {
+				text: 'CPU使用率'
+			}
+		},
+		tooltip: {
+			formatter: function () {
+				return '<b>' + this.series.name + '</b><br/>' +
+					Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+					Highcharts.numberFormat(this.y, 2);
+			}
+		},
+		legend: {
+			enabled: false
+		},
+		series: [{
+			name: '实时数据',
+			data: (function () {
+				// 生成随机值
+				var data = [],
+					time = (new Date()).getTime(),
+					i;
+
+				for (i = -19; i <= 0; i += 1) {  //缓冲区里面有20个数据
+					data.push({
+						x: time + i * 1000,
+						y: Math.random()
+						/*marker{   //可以在这里定制
+							fillColor: '#..', //颜色
+							radius:           //半径
+						}*/
+					});
+				}
+				return data;
+			}())
+		}]
+	});
+
+	//图表区域
+	function get_data(){
+		$.ajax({
+			tpye:"POST",
+			url: "http://127.0.0.1:8000/get_data/",
+			data:{
+			},
+			success:function(data){
+				status_all = data.status;
+				if(status_all == 3)  //获取数据时候出现异常
+				{
+					curr_usage = 0;
+					predict_usage = 0;
+				}
+				else
+				{
+					curr_usage = parseFloat(data.curr_usage);
+					predict_usage = parseFloat(data.pred_usage);	
+				}	
+				//alert("success");
+				//alert(status_all);
+				//alert(curr_usage);
+				//setTimeout 可以控制函数调用时间间隔
+			},
+			error:function(){
+				//alert("get_data error!");
+			}
+		})
+	}
+</script>
+{% endblock %}

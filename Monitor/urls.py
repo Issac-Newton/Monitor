@@ -18,6 +18,7 @@ from django.urls import path
 from testStatic import views as test_views
 from begin import views as begin_views
 from logMon import views as logMon_views
+from realtime import views as RealTime_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +30,6 @@ urlpatterns = [
     path('cluster_info/',logMon_views.cluster_info),
     path('user_info/',logMon_views.user_info),
     path('get_dm_data/',logMon_views.get_dm_data),
+    path('real_time/',RealTime_views.bubble),
+    path('get_rt_data/',RealTime_views.get_rt_data),
 ]

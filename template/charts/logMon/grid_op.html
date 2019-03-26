@@ -189,7 +189,7 @@
 			arch_que_name.push(data[i].Queue);
 		}
 
-		var margin = {top:100,right:80,bottom:100,left:80},
+		var margin = {top:100,right:60,bottom:100,left:60},
 		pie_width = 550 - margin.left - margin.right,
 		pie_height = 400 - margin.top - margin.bottom;
 		var svg = d3.select("#grid-pie")
@@ -198,8 +198,8 @@
 
 		var pie = d3.layout.pie();
 
-		var outerRadius = pie_width / 4;
-		var innerRadius = pie_width / 8;
+		var outerRadius = pie_width / 3;
+		var innerRadius = 0;
 		var arc = d3.svg.arc()
 					.innerRadius(innerRadius)
 					.outerRadius(outerRadius);
@@ -208,6 +208,26 @@
 
 		var gAll = svg.append("g")
 						.attr("transform","translate(" + (pie_width/2+50) + ",190)");  //圆心坐标
+
+		var startPointArc = d3.svg.arc()
+								.outerRadius(outerRadius - 10)
+								.innerRadius(outerRadius - 10);
+		var endPointArc = d3.svg.arc()
+							.outerRadius(outerRadius + 40)
+							.innerRadius(outerRadius + 40);
+
+		svg.append('g') // 输出标题
+	      .append('text')
+	      .attr('fill', '#fff')
+	      .attr('font-size', '14px')
+	      .attr('font-weight', '700')
+	      .attr(
+	        'transform',
+	        'translate(' + (pie_width/2 + 50) + ',190)')
+	      .attr('text-anchor', 'middle')
+	      .attr('x', 0)
+	      .attr('y', 0)
+	      .text('任务队列');
 
 		var arcs = gAll.selectAll(".arcs_g")
 					.data(pie(arch_data))
@@ -226,15 +246,18 @@
 				return arc(d);
 			});
 
-		arcs.append("text")
+		arcs.append("text")   //每块中间的数字
 			.attr("transform",function(d){
 				return "translate(" + arc.centroid(d) + ")";
 			})
+			.attr("fill",'#cddc39')
+			.attr("font-weight","700")
+			.attr("font-size","16px")
 			.attr("text-anchor","middle")
 			.text(function(d){
 				return d.value;
 			});
-		
+
 		var tooltip = d3.select("body")
 						.append("div")
 						.attr("class","tooltip")
@@ -249,7 +272,7 @@
 				//tooltip.style("box-shadow","10px 0px 0px"+color(i));
 			})
 			.on("mousemove",function(d){
-				/* 鼠标移动时，更改样式 left 和 top 来改变提示框的位置 */
+				// 鼠标移动时，更改样式 left 和 top 来改变提示框的位置 
 				tooltip.style("left",(d3.event.pageX)+"px")
 						.style("top",(d3.event.pageY+20)+"px");
 			})
@@ -258,6 +281,51 @@
 				tooltip.style("opacity",0.0);
 			});
 	}
+
+	/*function draw_pie(data,name){
+		var arch_data = [];
+		var arch_que_name = [];
+		for(var i in data){
+			arch_data.push(data[i].count);
+			arch_que_name.push(data[i].Queue);
+		}
+
+		var margin = {top:100,right:80,bottom:100,left:80},
+		pie_width = 550 - margin.left - margin.right,
+		pie_height = 400 - margin.top - margin.bottom;
+		var svg = d3.select("#grid-pie")
+					.attr("width",pie_width)
+					.attr("height",pie_height);
+
+		const radius = Math.min(pie_width,pie_height) / 2;
+
+		var gAll = svg.append("g")
+						.attr("transform","translate(" + (pie_width/2+50) + ",190)");  //圆心坐标
+
+		let arc = d3.arc()           //定义单个圆弧
+					.innerRadius(0)
+					.padAngle(0);
+
+		let startPointArc = d3.arc()
+								.outerRadius(radius - 10)
+								.innerRadius(radius - 10);
+
+		let parcentLabelArc = d3.arc()
+								.outerRadius(radius - 60)
+								.innerRadius(radius - 60);
+
+		let populationLabelArc = d3.arc()
+									.outerRadius(radius + 40)
+									.innerRadius(radius + 40);
+
+		let pie = d3.pie()
+					.sort(null)
+					.value(function(d){
+						return d;
+					});
+
+		const sumData = d3.sum(arch_data);
+	}*/
 </script>
 {% endblock %}
 
