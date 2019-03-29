@@ -1,0 +1,423 @@
+{
+	"USER_INFO":	{
+		"user":	[{
+				"name":	"wangzf",
+				"count":	1
+			}],
+		"op":	[{
+				"label":	"SCE_CMD_LISTNODES",
+				"value":	1
+			}, {
+				"label":	"SCE_FXP_LOGIN",
+				"value":	3
+			}]
+	},
+	"CLUSTER_INFO":	[{
+			"name":	"apps",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"batch",
+					"count":	1
+				}],
+			"cpucount":	[112],
+			"Maxcpucount":	[112],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[1440],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"casnw",
+			"count":	4,
+			"Queuename":	[{
+					"Queue":	"debug",
+					"count":	1
+				}, {
+					"Queue":	"grid",
+					"count":	1
+				}, {
+					"Queue":	"high",
+					"count":	1
+				}, {
+					"Queue":	"normal",
+					"count":	1
+				}],
+			"cpucount":	[1000, 1000, 1000, 1000],
+			"Maxcpucount":	[4, 80, 96, 128],
+			"Mincpucount":	[1, 2, 2, 2],
+			"WallTimeLimit":	[15, 21600, 21600, 21600],
+			"Njobs":	[0, 0, 32, 388],
+			"Runjobs":	[0, 0, 0, 388],
+			"Pendjobs":	[0, 0, 32, 0]
+		}, {
+			"name":	"dicp",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"dgrid_queue",
+					"count":	1
+				}],
+			"cpucount":	[944],
+			"Maxcpucount":	[40],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"era",
+			"count":	10,
+			"Queuename":	[{
+					"Queue":	"c_huge",
+					"count":	1
+				}, {
+					"Queue":	"c_kevnyang",
+					"count":	1
+				}, {
+					"Queue":	"c_large",
+					"count":	1
+				}, {
+					"Queue":	"c_soft",
+					"count":	1
+				}, {
+					"Queue":	"c_zjin",
+					"count":	1
+				}, {
+					"Queue":	"cpuII",
+					"count":	1
+				}, {
+					"Queue":	"cpu_dbg",
+					"count":	1
+				}, {
+					"Queue":	"gpu",
+					"count":	1
+				}, {
+					"Queue":	"mic",
+					"count":	1
+				}, {
+					"Queue":	"scgrid",
+					"count":	1
+				}],
+			"cpucount":	[5400, 5400, 5400, 5400, 5400, 5400, 5400, 5400, 5400, 5400],
+			"Maxcpucount":	[12000, 200, 4800, 100, 1200, 300, 20, 5400, 160, 1200],
+			"Mincpucount":	[4800, 10, 1200, 8, 24, 24, 1, 1, 2, 24],
+			"WallTimeLimit":	[1450, 10080, 1450, 30, 1450, 4330, 10090, 370, 370, 2890],
+			"Njobs":	[0, 0, 0, 0, 3504, 0, 0, 0, 48, 7632],
+			"Runjobs":	[0, 0, 0, 0, 3504, 0, 0, 0, 0, 744],
+			"Pendjobs":	[0, 0, 0, 0, 0, 0, 0, 0, 48, 6888]
+		}, {
+			"name":	"erai",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"debug",
+					"count":	1
+				}],
+			"cpucount":	[1080],
+			"Maxcpucount":	[1080],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[4320],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"gibh",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"grid",
+					"count":	1
+				}],
+			"cpucount":	[120],
+			"Maxcpucount":	[120],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"gspcc",
+			"count":	4,
+			"Queuename":	[{
+					"Queue":	"batch",
+					"count":	1
+				}, {
+					"Queue":	"high",
+					"count":	1
+				}, {
+					"Queue":	"low",
+					"count":	1
+				}, {
+					"Queue":	"middle",
+					"count":	1
+				}],
+			"cpucount":	[56, 56, 56, 56],
+			"Maxcpucount":	[56, 56, 56, 56],
+			"Mincpucount":	[1, 1, 1, 1],
+			"WallTimeLimit":	[150, 14400, 21600, 21600],
+			"Njobs":	[0, 0, 168, 830],
+			"Runjobs":	[0, 0, 0, 481],
+			"Pendjobs":	[0, 0, 168, 349]
+		}, {
+			"name":	"hku",
+			"count":	3,
+			"Queuename":	[{
+					"Queue":	"long",
+					"count":	1
+				}, {
+					"Queue":	"mpi",
+					"count":	1
+				}, {
+					"Queue":	"normal",
+					"count":	1
+				}],
+			"cpucount":	[216, 216, 216],
+			"Maxcpucount":	[216, 216, 24],
+			"Mincpucount":	[1, 1, 1],
+			"WallTimeLimit":	[21600, 21600, 21600],
+			"Njobs":	[0, 0, 8],
+			"Runjobs":	[0, 0, 0],
+			"Pendjobs":	[0, 0, 8]
+		}, {
+			"name":	"iapcm",
+			"count":	3,
+			"Queuename":	[{
+					"Queue":	"batch",
+					"count":	1
+				}, {
+					"Queue":	"gpu",
+					"count":	1
+				}, {
+					"Queue":	"mic",
+					"count":	1
+				}],
+			"cpucount":	[1800, 1800, 1800],
+			"Maxcpucount":	[384, 384, 4128],
+			"Mincpucount":	[24, 24, 24],
+			"WallTimeLimit":	[21600, 21600, 21600],
+			"Njobs":	[0, 0, 2880],
+			"Runjobs":	[0, 0, 2880],
+			"Pendjobs":	[0, 0, 0]
+		}, {
+			"name":	"ibp",
+			"count":	6,
+			"Queuename":	[{
+					"Queue":	"Debug",
+					"count":	1
+				}, {
+					"Queue":	"GPU",
+					"count":	1
+				}, {
+					"Queue":	"Infini",
+					"count":	1
+				}, {
+					"Queue":	"P-IBP",
+					"count":	1
+				}, {
+					"Queue":	"batch",
+					"count":	1
+				}, {
+					"Queue":	"fat",
+					"count":	1
+				}],
+			"cpucount":	[1200, 1200, 1200, 1200, 1200, 1200],
+			"Maxcpucount":	[1200, 48, 60, 60, 72, 12],
+			"Mincpucount":	[1, 1, 2, 60, 1, 1],
+			"WallTimeLimit":	[30, 7200, 10080, 10080, 10080, 10080],
+			"Njobs":	[0, 0, 0, 0, 0, 0],
+			"Runjobs":	[0, 0, 0, 0, 0, 0],
+			"Pendjobs":	[0, 0, 0, 0, 0, 0]
+		}, {
+			"name":	"issp",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"paraque",
+					"count":	1
+				}],
+			"cpucount":	[336],
+			"Maxcpucount":	[336],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[830],
+			"Runjobs":	[326],
+			"Pendjobs":	[504]
+		}, {
+			"name":	"nscccs",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"scepart",
+					"count":	1
+				}],
+			"cpucount":	[4488],
+			"Maxcpucount":	[600],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"nsccgz",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"work",
+					"count":	1
+				}],
+			"cpucount":	[3072],
+			"Maxcpucount":	[79872],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[1632],
+			"Runjobs":	[1632],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"nsccjn",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"q_sw_jngrid",
+					"count":	1
+				}],
+			"cpucount":	[2000],
+			"Maxcpucount":	[3836],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"nscctj",
+			"count":	2,
+			"Queuename":	[{
+					"Queue":	"cngrid",
+					"count":	1
+				}, {
+					"Queue":	"debug",
+					"count":	1
+				}],
+			"cpucount":	[768, 768],
+			"Maxcpucount":	[384, 24],
+			"Mincpucount":	[1, 1],
+			"WallTimeLimit":	[21600, 30],
+			"Njobs":	[0, 0],
+			"Runjobs":	[0, 0],
+			"Pendjobs":	[0, 0]
+		}, {
+			"name":	"nsccwx",
+			"count":	1,
+			"Queuename":	[{
+					"Queue":	"q_x86_share_1",
+					"count":	1
+				}],
+			"cpucount":	[2000],
+			"Maxcpucount":	[1656],
+			"Mincpucount":	[1],
+			"WallTimeLimit":	[21600],
+			"Njobs":	[0],
+			"Runjobs":	[0],
+			"Pendjobs":	[0]
+		}, {
+			"name":	"qdio",
+			"count":	4,
+			"Queuename":	[{
+					"Queue":	"bigmem",
+					"count":	1
+				}, {
+					"Queue":	"debug",
+					"count":	1
+				}, {
+					"Queue":	"high",
+					"count":	1
+				}, {
+					"Queue":	"normal",
+					"count":	1
+				}],
+			"cpucount":	[1000, 1000, 1000, 1000],
+			"Maxcpucount":	[128, 16, 128, 400],
+			"Mincpucount":	[1, 1, 1, 1],
+			"WallTimeLimit":	[21600, 15, 21600, 21600],
+			"Njobs":	[0, 0, 0, 164],
+			"Runjobs":	[0, 0, 0, 36],
+			"Pendjobs":	[0, 0, 0, 128]
+		}, {
+			"name":	"siat",
+			"count":	4,
+			"Queuename":	[{
+					"Queue":	"batch",
+					"count":	1
+				}, {
+					"Queue":	"high",
+					"count":	1
+				}, {
+					"Queue":	"low",
+					"count":	1
+				}, {
+					"Queue":	"middle",
+					"count":	1
+				}],
+			"cpucount":	[320, 320, 320, 320],
+			"Maxcpucount":	[320, 320, 320, 320],
+			"Mincpucount":	[1, 1, 1, 1],
+			"WallTimeLimit":	[21600, 21600, 21600, 21600],
+			"Njobs":	[0, 72, 0, 568],
+			"Runjobs":	[0, 0, 0, 56],
+			"Pendjobs":	[0, 72, 0, 512]
+		}, {
+			"name":	"sjtu",
+			"count":	2,
+			"Queuename":	[{
+					"Queue":	"cpu",
+					"count":	1
+				}, {
+					"Queue":	"gpu",
+					"count":	1
+				}],
+			"cpucount":	[5248, 5248],
+			"Maxcpucount":	[5248, 528],
+			"Mincpucount":	[1, 1],
+			"WallTimeLimit":	[10080, 10080],
+			"Njobs":	[7930, 794],
+			"Runjobs":	[4591, 756],
+			"Pendjobs":	[3339, 38]
+		}, {
+			"name":	"ssc",
+			"count":	2,
+			"Queuename":	[{
+					"Queue":	"score",
+					"count":	1
+				}, {
+					"Queue":	"snode",
+					"count":	1
+				}],
+			"cpucount":	[1344, 1344],
+			"Maxcpucount":	[1344, 7416],
+			"Mincpucount":	[1, 1],
+			"WallTimeLimit":	[21600, 21600],
+			"Njobs":	[1337, 8112],
+			"Runjobs":	[808, 6144],
+			"Pendjobs":	[529, 1968]
+		}],
+	"JOB_INFO":	{
+		"jobs":	[{
+				"job":	"1529190135025358700",
+				"count":	10
+			}, {
+				"job":	"1529511471521088038",
+				"count":	10
+			}, {
+				"job":	"1529720653876328513",
+				"count":	10
+			}, {
+				"job":	"1530823080154272887",
+				"count":	10
+			}, {
+				"job":	"1530982485270997143",
+				"count":	10
+			}, {
+				"job":	"1531500474184649966",
+				"count":	10
+			}, {
+				"job":	"1532076748185272307",
+				"count":	10
+			}],
+		"all_status":	[{
+				"status":	"STAGINGOUT",
+				"count":	70
+			}]
+	}
+}

@@ -1,4 +1,35 @@
 {% extends 'Base/base_site.html' %}
+
+{% block style %}
+<style>
+	.tip{
+			position: absolute;
+			width: 120px;
+			height: auto;
+			font-family: simsun;
+			font-size: 14px;
+			text-align: center;
+			color: white;
+			border-width: 2px solid black;
+			background-color: black;
+			border-radius: 5px;
+		}
+		 
+	.tip:after{ 
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		left: 20%;
+		margin-left: -8px;
+		width: 0;
+		height: 0;
+		border-bottom: 12px solid black;
+		border-right: 12px solid transparent;
+		border-left: 12px solid transparent;
+	}
+</style>
+{% endblock %}
+
 {% block content_header %}
 	<section class="content-header">
 	  <h1>
@@ -94,7 +125,7 @@
                 <li><a href="#month-chart" data-toggle="tab">month</a></li>
                 <!--li><a href="/mosaic_chart"> Mosaic</a></li-->  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
                 <li><a href="#" onclick="to_mosaic()"> Mosaic</a></li>  <!--这里不能有data-toggle,因为这个标签会阻挡a标签的跳转作用 -->
-                <li class="pull-left header"><i class="fa fa-inbox"></i> Sales</li>
+                <li class="pull-left header"><i class="fa fa-inbox"></i> 图表</li>
               </ul>
               <div class="tab-content no-padding">
                 <!-- Morris chart - Sales -->
@@ -187,6 +218,9 @@
                 if(data.user_count==0 && data.cluster_count==0 && data.user_op_count==0 && data.job_count==0){
                     alert("指定时间的json文件错误，请到相应目录检查文件。");    
                 }
+                else{
+                	get_dm_data();
+                }
             },
             error:function(data){
               alert("指定时间的json文件错误，请到相应目录检查文件。");
@@ -221,6 +255,7 @@
         month_op = [],
         month_cluster = [],
         month_job = [];
+
 
     function lineChart(id) { // <-1A
       var _chart = {};
@@ -347,6 +382,11 @@
       }
 
       function renderDots() {
+      		var tooltip = d3.select("body")
+      						.append("div")
+			    		.attr("class","tip")
+				    	.style("opacity",0.0);
+
           _data.forEach(function (list, i) {
               _bodyG.selectAll("circle._" + i) //<-4E
                           .data(list)
@@ -363,7 +403,40 @@
                       .attr("cx", function (d) { return _x(d.x); })
                       .attr("cy", function (d) { return _y(d.y); })
                       .attr("r", 4.5);
+
+              console.log(id);
+              _bodyG.selectAll("circle._" + i)
+              			.data(list)
+                      .on("mouseover",function(d){
+                      	tooltip.html( "<strong>" + class_name(i) + "</strong> <br>" + d.y)
+                      			.style("left",(d3.event.pageX) + "px")
+                      			.style("top",(d3.event.pageY) + "px")
+                      			.style("opacity",1.0);
+                      })
+                      .on("mousemove",function(d){
+							// 鼠标移动时，更改样式 left 和 top 来改变提示框的位置 
+							tooltip.style("left",(d3.event.pageX)+"px")
+									.style("top",(d3.event.pageY+20)+"px");
+					  })
+                      .on("mouseout",function(){
+                      	tooltip.style("opacity",0.0);
+                      });
           });
+      }
+
+      function class_name(i){
+      	if(i == 0){
+      		return "用户访问次数";
+      	}
+      	else if(i == 1){
+      		return "用户操作次数";
+      	}
+      	else if(i == 2){
+      		return "集群被访问次数";
+      	}
+      	else{
+      		return "任务数量";
+      	}
       }
 
       function xStart() {
@@ -457,6 +530,8 @@
       insert_data(day_cluster);
       insert_data(day_job);
       
+      document.getElementById("day-chart").innerHTML = '';
+
       var chart = lineChart("#day-chart") 
                   .x(x).y(y);
 
@@ -490,6 +565,8 @@
       insert_data(month_cluster);
       insert_data(month_job);
       
+      document.getElementById("month-chart").innerHTML = '';
+
       var chart = lineChart("#month-chart") 
                   .x(x).y(y);
 
@@ -519,8 +596,8 @@
               month_cluster = data.mcluster;
               month_job = data.mjob;
 
-              draw_day();
               draw_month(mdays);
+              draw_day();
             },
             error:function(){
               alert("指定时间的json文件错误，请到相应目录检查文件。"); 
