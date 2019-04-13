@@ -135,3 +135,7 @@ def cluster_info(request):
 
 def user_info(request):
 	return render(request,'charts/logMon/user_op.html')
+
+
+def log3D(request):
+	return render(request,'logMonitor/log3D.html')

@@ -1,0 +1,140 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+{% endblock %}
+{% block content_header %}
+<section class="content-header">
+	<h1>
+	    Dashboard
+	    <small>Control panel</small>
+	</h1>
+	<ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	</ol>
+</section>
+{% endblock %}
+
+{% block content %}
+<div id="container_e" style="height: 450%"> </div>
+<div class="input-group date">
+    <input type="text" class="form-control pull-right" id="datepicker" style="width:150px;margin-left: 500px;margin-top:10px;background-color: #ffc09f;font-weight:bold;font-size:16px;font-color:#4cb4e7;" placeholder="日期选择"  />
+</div>
+{% endblock %}
+
+{% block js_function %}
+<script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
+<script type="text/javascript" src="/static/bower_components/chart.js/echarts-gl.min.js"></script>
+<script type="text/javascript" src="/static/bower_components/chart.js/ecStat.min.js"></script>
+<script type="text/javascript" src="/static/bower_components/chart.js/dataTool.min.js"></script>
+<script type="text/javascript" src="/static/bower_components/chart.js/simplex.js"></script>
+<script type='text/javascript' src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+<script type='text/javascript' src="/static/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+<script type='text/javascript'>
+
+	var hours = [];
+	for(let i = 0;i < 24;i++){
+		var hour;
+		if(i < 10){
+			hour = '0' + String(i);
+		}
+		else hour = String(i);
+		for(let j = 0;j < 6;j++){
+			var minute = String(j);
+			hours.push(hour + '-' + minute);
+		}
+	}
+
+	$(function () {
+		$('#datepicker').datepicker({
+	    	  autoclose: true,
+	    	  format:"yyyy-mm-dd",
+	    	  startDate:"2018-09-03"
+	    });
+	    $('#datepicker').datepicker()
+    	.on('changeDate',function(ev){
+    		var time = document.getElementById('datepicker').value;
+    		draw_3D(time);
+    	});
+	})
+
+	function draw_3D(time){
+		$.ajaxSettings.async = false;			
+	   	var _data = [];
+	   	$.getJSON("/static/day/" + time + "/sum.json",function(data){
+	   		_data = data;
+	   	});
+
+	    var dom = document.getElementById("container_e"); 
+	    var myChart = echarts.init(dom);
+	    var app = {};
+	   
+
+	    option = null;
+	    option = {
+		    tooltip:{},
+	        grid3D:{
+			    boxWidth:230,
+				viewControl:{
+					beta:1
+				}
+			},
+	        xAxis3D:{
+				type:'category',
+				data:hours
+	        },
+	        yAxis3D:{
+				type:'category'
+	        },
+	        zAxis3D:{
+				type:'value'
+	        },
+			visualMap:{
+				min:0,
+				max:100,
+				dimension:0,
+				align:'right',
+				right:0
+			},
+			dataset:{
+				dimensions:[
+					'value',
+					'kind',
+					'time'
+				],
+				source: _data
+	        },
+			series:[{         //每一个series表示一个数据列 
+				type:'bar3D',
+				shading:'lambert',
+				encode:{
+					x:'time',
+					y:'kind',
+					z:'value'
+				},
+				emphasis:{
+					label:{
+						show:false
+					}
+				}
+			}]
+	    };
+
+		if (option && typeof option === "object") {
+	        myChart.setOption(option, true);
+	    }
+		/*
+	    myChart.on('click',function(params){
+	    	now_option = myChart.getOption();
+	    	grid = now_option.grid3D[0];
+	    	console.log(grid.viewControl.beta);  //利用beta进行判断用户使用的视角即可
+			map = now_option.visualMap[0];
+			console.log(map.categories);
+	    	dataset = now_option.dataset[0];
+			
+			console.log(dataset.source);
+	    })*/	
+	}
+	
+	draw_3D('2018-09-03');
+</script>
+{% endblock %}
