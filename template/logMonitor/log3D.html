@@ -30,8 +30,8 @@
 <script type='text/javascript' src="/static/bower_components/jquery/dist/jquery.min.js"></script>
 <script type='text/javascript' src="/static/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 <script type='text/javascript'>
-
-	var hours = [];
+	//x轴的时间显示
+	/*var hours = [];
 	for(let i = 0;i < 24;i++){
 		var hour;
 		if(i < 10){
@@ -42,7 +42,7 @@
 			var minute = String(j);
 			hours.push(hour + '-' + minute);
 		}
-	}
+	}*/
 
 	$(function () {
 		$('#datepicker').datepicker({
@@ -54,9 +54,30 @@
     	.on('changeDate',function(ev){
     		var time = document.getElementById('datepicker').value;
     		draw_3D(time);
+    		outlier_detect(time);
     	});
 	})
 
+	function outlier_detect(time){
+		$.ajax({
+			type:'POST',
+			url:'http://127.0.0.1:8000/detection/',
+			data:{
+				'time':time
+			},
+			success:function(data){  //从后端传入一个字符串
+				var errors_str = data.index;
+				errors_str = errors_str.substr(1);
+				var errors = errors_str.split(' ');
+
+			},
+			error:function(){
+				console.log('error');
+			}
+		});
+	}
+
+	var curIndex = null;
 	function draw_3D(time){
 		$.ajaxSettings.async = false;			
 	   	var _data = [];
@@ -79,8 +100,7 @@
 				}
 			},
 	        xAxis3D:{
-				type:'category',
-				data:hours
+				type:'category'
 	        },
 	        yAxis3D:{
 				type:'category'
@@ -115,6 +135,12 @@
 					label:{
 						show:false
 					}
+				},
+				itemStyle:{
+					color:function(params){
+						var key = params.dataIndex;
+						if(key == curIndex) return 'blue';
+					}
 				}
 			}]
 	    };
@@ -122,8 +148,11 @@
 		if (option && typeof option === "object") {
 	        myChart.setOption(option, true);
 	    }
-		/*
+		
 	    myChart.on('click',function(params){
+	    	curIndex = params.dataIndex;
+	    	myChart.setOption(option);
+	    	/*
 	    	now_option = myChart.getOption();
 	    	grid = now_option.grid3D[0];
 	    	console.log(grid.viewControl.beta);  //利用beta进行判断用户使用的视角即可

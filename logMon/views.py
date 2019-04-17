@@ -1,4 +1,7 @@
 import os
+import json
+from lof import LOF
+from lof import outliers
 import json,calendar
 import warnings
 from django.shortcuts import render
@@ -139,3 +142,38 @@ def user_info(request):
 
 def log3D(request):
 	return render(request,'logMonitor/log3D.html')
+
+def json_to_list(lines):
+	instances = []
+	for line in lines:
+		line.replace('\n','')
+		line.replace('[','')
+		line.replace(']','')
+		parts = line.split(',')
+
+
+@csrf_exempt
+def Anomaly_Detect(request):
+	time = request.POST.get('time',None)
+	rf = open('static/day/' + time + '/sum.json','r')
+	lines = json.load(rf)
+
+	all_nums = []
+	for line in lines:
+		all_nums.append(line[0])
+
+	instances = []
+	for i in range(len(all_nums)):
+		if i!=0 and i%4 == 0:
+			instances.append((all_nums[i-4],all_nums[i-3],all_nums[i-2],all_nums[i-1]))
+
+	instances.append((all_nums[-4],all_nums[-3],all_nums[-2],all_nums[-1]))
+	exceptions = outliers(5,instances)
+
+	error_index = ''  #有异常的点的下标集合，用空格分隔
+	for outlier in exceptions:
+		error_index = error_index + ' ' + str(outlier['index'])
+
+	return JsonResponse({
+		'index':error_index
+		})
