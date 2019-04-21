@@ -167,13 +167,19 @@ def Anomaly_Detect(request):
 		if i!=0 and i%4 == 0:
 			instances.append((all_nums[i-4],all_nums[i-3],all_nums[i-2],all_nums[i-1]))
 
+	M = -1
 	instances.append((all_nums[-4],all_nums[-3],all_nums[-2],all_nums[-1]))
-	exceptions = outliers(5,instances)
+	for tu in instances:
+		M = max(M,max(tu))
+
+	exceptions = outliers(5,instances)  
 
 	error_index = ''  #有异常的点的下标集合，用空格分隔
-	for outlier in exceptions:
-		error_index = error_index + ' ' + str(outlier['index'])
+	for outlier in exceptions:    #每个outlier对象有一个value值可以限制一个点是不是离群值
+		if outlier['lof'] > 1.15:
+			error_index = error_index + ' ' + str(outlier['index'])
 
 	return JsonResponse({
+		'count_max':M,
 		'index':error_index
 		})

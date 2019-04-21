@@ -22,6 +22,7 @@
 {% endblock %}
 
 {% block js_function %}
+<script type="text/javascript" src="/static/bower_components/chart.js/d3.js"></script>
 <script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
 <script type="text/javascript" src="/static/bower_components/chart.js/echarts-gl.min.js"></script>
 <script type="text/javascript" src="/static/bower_components/chart.js/ecStat.min.js"></script>
@@ -43,6 +44,13 @@
 			hours.push(hour + '-' + minute);
 		}
 	}*/
+	var count_min = 0,count_max = 100,linear;  //这两个值要看真实的数据
+
+	var color_max = d3.rgb(196,79,83);
+    var color_min = d3.rgb(245,237,165);
+    var compute = d3.interpolate(color_min,color_max);
+
+	var outliers = [];
 
 	$(function () {
 		$('#datepicker').datepicker({
@@ -59,6 +67,7 @@
 	})
 
 	function outlier_detect(time){
+		outliers = [];
 		$.ajax({
 			type:'POST',
 			url:'http://127.0.0.1:8000/detection/',
@@ -66,10 +75,18 @@
 				'time':time
 			},
 			success:function(data){  //从后端传入一个字符串
+				count_max = data.count_max;
+				linear = d3.scale.linear()
+					.domain([count_min,count_max])
+					.range([0,1]);
+
 				var errors_str = data.index;
 				errors_str = errors_str.substr(1);
 				var errors = errors_str.split(' ');
-
+				for(let i = 0;i < errors.length;i++){
+					outliers.push(parseInt(errors[i]));
+				}
+				//console.log(outliers);
 			},
 			error:function(){
 				console.log('error');
@@ -77,9 +94,9 @@
 		});
 	}
 
-	var curIndex = null;
 	function draw_3D(time){
 		$.ajaxSettings.async = false;			
+		outlier_detect(time);
 	   	var _data = [];
 	   	$.getJSON("/static/day/" + time + "/sum.json",function(data){
 	   		_data = data;
@@ -107,14 +124,14 @@
 	        },
 	        zAxis3D:{
 				type:'value'
-	        },
+	        },/*
 			visualMap:{
 				min:0,
 				max:100,
 				dimension:0,
 				align:'right',
 				right:0
-			},
+			},*/
 			dataset:{
 				dimensions:[
 					'value',
@@ -138,8 +155,15 @@
 				},
 				itemStyle:{
 					color:function(params){
-						var key = params.dataIndex;
-						if(key == curIndex) return 'blue';
+						if(outliers.includes(parseInt(params.dataIndex/4))){
+							//console.log(params.value[0]);
+							return 'blue';
+						}
+						else{
+							var normal_color = compute(linear(params.value[0]));
+							//console.log(normal_color);
+							return normal_color;	
+						}
 					}
 				}
 			}]
@@ -160,8 +184,8 @@
 			console.log(map.categories);
 	    	dataset = now_option.dataset[0];
 			
-			console.log(dataset.source);
-	    })*/	
+			console.log(dataset.source);*/
+	    })	
 	}
 	
 	draw_3D('2018-09-03');
