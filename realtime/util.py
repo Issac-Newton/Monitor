@@ -19,7 +19,10 @@ def from_json_to_dict(jsdata):
     mapdata = jsdata['mapdata']
     profiles = mapdata['profiles']
     #print(profiles)
+
     status = 0
+    return profiles,status
+    '''
     for profile in profiles:
         cpuutil = 0.0
         nodename = ''
@@ -35,7 +38,7 @@ def from_json_to_dict(jsdata):
         if nodename in dict.keys():
             dict[nodename] = cpuutil
     return dict,status
-
+    '''
 def getstatus(dict_time , predict_value):
     dict = dict_time
     time_value = np.zeros(len(dict),dtype = np.float32)

@@ -1,0 +1,413 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+
+{% endblock %}
+
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+	<h1 class="page-head-line" align="center"> 集群实时数据 </h1>
+	<Br/>
+	<Br/>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<h3 class="box-title">Area Chart</h3>
+
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                		</button>
+					</div>
+				</div>
+				<div class="box-body">
+	              <div class="chart">
+	                <div id="areaChart" style="height:250px"></div>
+	              </div>
+	            </div>
+			</div>
+
+			<div class="box box-danger">
+				<div class="box-header with-border">
+					<h3 class="box-title">User Line Chart</h3>
+
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                		</button>
+					</div>
+				</div>
+				<div class="box-body">
+					<div class="chart">
+						<div id="userLineChart" style="height:250px"> </div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="box box-success">
+				<div class="box-header with-border">
+					<h3 class="box-title">Bar Chart</h3>
+
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                		</button>
+					</div>
+				</div>
+
+				<div class="box-body">
+					<div class="chart">
+						<div id="barChart" style="height:250px"> </div>
+					</div>
+				</div>
+			</div>
+
+			<div class="box box-info">
+            	<div class="box-header with-border">
+              		<h3 class="box-title">Job Line Chart</h3>
+              		<div class="box-tools pull-right">
+		                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+		                </button>
+		            </div>
+              	</div>
+
+              	<div class="box-body">
+              		<div class="chart">
+              			<div id="jobLineChart" style="height:250px"> </div>
+              		</div>
+              	</div>
+            </div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block js_function %}
+
+	<script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
+	<script type="text/javascript">
+		var allData = [];  //这个里面最多存6个数据
+		var status;
+		var name;
+		name = "era";
+
+		function get_data(){
+			console.log(name);
+			$.ajax({
+				type:"POST",
+				url: "http://127.0.0.1:8000/get_rt_data/",
+				data: {
+					"name" : name
+				},
+				success:function(data){
+					status = data.status;
+					if(status != 3){
+						profile = data.current;   //返回的是一个js对象，里面有各种字段值
+						if(allData.length == 6){   //不足6个
+							allData.shift();
+						}
+						allData.push(profile);
+					}
+					else{
+
+						console.log("get data status error!");
+					}
+				},
+				error:function(){
+					alert("get_data error!");
+				}
+			});
+		}
+
+		function area_chart(){
+			var dom = document.getElementById("areaChart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    tooltip: {
+			        trigger: 'axis',
+			        axisPointer: {
+			            type: 'cross',
+			            label: {
+			                backgroundColor: '#6a7985'
+			            }
+			        }
+			    },
+			    legend:{
+			        data:['A','B']
+			    },
+			    toolbox: {
+			        feature: {
+			            saveAsImage: {}
+			        }
+			    },
+			    grid: {
+			        left: '3%',
+			        right: '4%',
+			        bottom: '3%',
+			        containLabel: true
+			    },
+			    series: [{
+			        name:'A',
+			        data: [820, 932, 901, 934, 1290, 1330, 1320],
+			        type: 'line',
+			        areaStyle: {}
+			    },
+			    {
+			        name:'B',
+			        data: [800, 900, 800, 750, 1200,1000, 1320],
+			        type: 'line',
+			        areaStyle: {}
+			    }
+			    ]
+			};
+			
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}	
+		}
+		
+		function user_line_chart(){
+			var dom = document.getElementById("userLineChart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    title: {
+			        text: '某楼盘销售情况',
+			        subtext: '纯属虚构'
+			    },
+			    tooltip: {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['意向','预购','成交']
+			    },
+			    toolbox: {
+			        show: true,
+			        feature: {
+			            magicType: {show: true, type: ['stack', 'tiled']},
+			            saveAsImage: {show: true}
+			        }
+			    },
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: ['周一','周二','周三','周四','周五','周六','周日']
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    series: [{
+			        name: '成交',
+			        type: 'line',
+			        smooth: true,
+			        data: [10, 12, 21, 54, 260, 830, 710]
+			    },
+			    {
+			        name: '预购',
+			        type: 'line',
+			        smooth: true,
+			        data: [30, 182, 434, 791, 390, 30, 10]
+			    },
+			    {
+			        name: '意向',
+			        type: 'line',
+			        smooth: true,
+			        data: [1320, 1132, 601, 234, 120, 90, 20]
+			    }]
+			};
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		function job_line_chart(){
+			var dom = document.getElementById("jobLineChart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    title: {
+			        text: '某楼盘销售情况',
+			        subtext: '纯属虚构'
+			    },
+			    tooltip: {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['意向','预购','成交']
+			    },
+			    toolbox: {
+			        show: true,
+			        feature: {
+			            magicType: {show: true, type: ['stack', 'tiled']},
+			            saveAsImage: {show: true}
+			        }
+			    },
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: ['周一','周二','周三','周四','周五','周六','周日']
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    series: [{
+			        name: '成交',
+			        type: 'line',
+			        smooth: true,
+			        data: [10, 12, 21, 54, 260, 830, 710]
+			    },
+			    {
+			        name: '预购',
+			        type: 'line',
+			        smooth: true,
+			        data: [30, 182, 434, 791, 390, 30, 10]
+			    },
+			    {
+			        name: '意向',
+			        type: 'line',
+			        smooth: true,
+			        data: [1320, 1132, 601, 234, 120, 90, 20]
+			    }]
+			};
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		function bar_chart(){
+			var dom = document.getElementById("barChart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			app.title = '堆叠柱状图';
+
+			option = {
+			    tooltip : {
+			        trigger: 'axis',
+			        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+			            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+			        }
+			    },
+			    legend: {
+			        data:['直接访问','邮件营销','联盟广告','视频广告','搜索引擎','百度','谷歌','必应','其他']
+			    },
+			    grid: {
+			        left: '3%',
+			        right: '4%',
+			        bottom: '3%',
+			        containLabel: true
+			    },
+			    xAxis : [
+			        {
+			            type : 'category',
+			            data : ['周一','周二','周三','周四','周五','周六','周日']
+			        }
+			    ],
+			    yAxis : [
+			        {
+			            type : 'value'
+			        }
+			    ],
+			    series : [
+			        {
+			            name:'直接访问',
+			            type:'bar',
+			            data:[320, 332, 301, 334, 390, 330, 320]
+			        },
+			        {
+			            name:'邮件营销',
+			            type:'bar',
+			            stack: '广告',
+			            data:[120, 132, 101, 134, 90, 230, 210]
+			        },
+			        {
+			            name:'联盟广告',
+			            type:'bar',
+			            stack: '广告',
+			            data:[220, 182, 191, 234, 290, 330, 310]
+			        },
+			        {
+			            name:'视频广告',
+			            type:'bar',
+			            stack: '广告',
+			            data:[150, 232, 201, 154, 190, 330, 410]
+			        },
+			        {
+			            name:'搜索引擎',
+			            type:'bar',
+			            data:[862, 1018, 964, 1026, 1679, 1600, 1570],
+			            markLine : {
+			                lineStyle: {
+			                    normal: {
+			                        type: 'dashed'
+			                    }
+			                },
+			                data : [
+			                    [{type : 'min'}, {type : 'max'}]
+			                ]
+			            }
+			        },
+			        {
+			            name:'百度',
+			            type:'bar',
+			            barWidth : 5,
+			            stack: '搜索引擎',
+			            data:[620, 732, 701, 734, 1090, 1130, 1120]
+			        },
+			        {
+			            name:'谷歌',
+			            type:'bar',
+			            stack: '搜索引擎',
+			            data:[120, 132, 101, 134, 290, 230, 220]
+			        },
+			        {
+			            name:'必应',
+			            type:'bar',
+			            stack: '搜索引擎',
+			            data:[60, 72, 71, 74, 190, 130, 110]
+			        },
+			        {
+			            name:'其他',
+			            type:'bar',
+			            stack: '搜索引擎',
+			            data:[62, 82, 91, 84, 109, 110, 120]
+			        }
+			    ]
+			};
+
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		area_chart();
+		user_line_chart();
+		job_line_chart();
+		bar_chart();
+
+	</script>
+{% endblock %}

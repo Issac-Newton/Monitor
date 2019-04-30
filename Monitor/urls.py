@@ -32,6 +32,6 @@ urlpatterns = [
     path('user_info/',logMon_views.user_info),
     path('get_dm_data/',logMon_views.get_dm_data),
 	path('detection/',logMon_views.Anomaly_Detect),
-    path('real_time/',RealTime_views.bubble),
+    path('real_time/',RealTime_views.realTime),
     path('get_rt_data/',RealTime_views.get_rt_data),
 ]
