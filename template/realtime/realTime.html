@@ -98,13 +98,77 @@
 	<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
 	<script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
 	<script type="text/javascript">
+		const all_length = 6; //现在设置为6个，最多存6个数据
 		var allData = [];  //这个里面最多存6个数据
-		var status;
+		var status,profile;
 		var name;
 		name = "era";
+		var x_ticks = ['0', '10', '20', '30', '40', '50'];      //时间这个轴需要改一下，让它随着时间变动而变动
+
+		var area_data = new Object(),
+			user_line_data = new Object(),
+			job_line_data = new Object(),
+			bar_data = new Object();
+
+		$.ajaxSettings.async = false;
+
+		function initial_data_var(){
+			area_data.occupy = [];
+			area_data.idle = [];
+			area_data.closed = [];
+			area_data.off = [];
+			area_data.reserve = [];
+
+			user_line_data.run = [];
+			user_line_data.pend = [];
+			user_line_data.active = [];
+
+			job_line_data.pend = [];
+			job_line_data.run = [];
+
+			bar_data.available = [];
+			bar_data.pend = [];
+			bar_data.run = [];
+		}
+
+		function add_element(profile){
+			area_data.occupy.push(profile.occupyNode);
+			area_data.idle.push(profile.idleNode);
+			area_data.closed.push(profile.closedNode);
+			area_data.reserve.push(profile.reserveNode);
+			area_data.off.push(profile.offNode);
+
+			user_line_data.run.push(profile.runUser);
+			user_line_data.pend.push(profile.penduser);
+			user_line_data.active.push(profile.activeUser);
+
+			job_line_data.pend.push(profile.pendJob);
+			job_line_data.run.push(profile.runJob);
+
+			bar_data.available.push(profile.availableCore);
+			bar_data.pend.push(profile.pendCore);
+			bar_data.run.push(profile.runCore);
+		}
+
+		function shift_element(){
+			area_data.occupy.shift();
+			area_data.idle.shift();
+			area_data.closed.shift();
+			area_data.reserve.shift();
+
+			user_line_data.run.shift();
+			user_line_data.pend.shift();
+			user_line_data.active.shift();
+
+			job_line_data.pend.shift();
+			job_line_data.run.shift();
+
+			bar_data.available.shift();
+			bar_data.pend.shift();
+			bar_data.run.shift();
+		}
 
 		function get_data(){
-			console.log(name);
 			$.ajax({
 				type:"POST",
 				url: "http://127.0.0.1:8000/get_rt_data/",
@@ -114,21 +178,34 @@
 				success:function(data){
 					status = data.status;
 					if(status != 3){
-						profile = data.current;   //返回的是一个js对象，里面有各种字段值
-						if(allData.length == 6){   //不足6个
-							allData.shift();
-						}
-						allData.push(profile);
+						console.log("get_data success");
+						//console.log(data.current);
+						profile = data.current;
 					}
 					else{
-
-						console.log("get data status error!");
+						console.log("get_data status error!");
+						profile = null;
 					}
 				},
 				error:function(){
 					alert("get_data error!");
+					return null;
 				}
 			});
+		}
+
+		function load_data(){
+			get_data();
+			while(!profile || typeof(profile)=="undefined"){
+				get_data();
+			}
+
+			if(allData.length >= all_length){
+				allData.shift();
+				shift_element();
+			}
+			allData.push(profile);
+			add_element(profile);
 		}
 
 		function area_chart(){
@@ -140,7 +217,7 @@
 			    xAxis: {
 			        type: 'category',
 			        boundaryGap: false,
-			        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+			        data: x_ticks
 			    },
 			    yAxis: {
 			        type: 'value'
@@ -155,7 +232,7 @@
 			        }
 			    },
 			    legend:{
-			        data:['A','B']
+			        data:['occupyNode','idleNode','closedNode','offNode','reserveNode']
 			    },
 			    toolbox: {
 			        feature: {
@@ -169,16 +246,34 @@
 			        containLabel: true
 			    },
 			    series: [{
-			        name:'A',
-			        data: [820, 932, 901, 934, 1290, 1330, 1320],
+			        name:'occupyNode',
+			        data: area_data.occupy,
 			        type: 'line',
 			        areaStyle: {}
 			    },
 			    {
-			        name:'B',
-			        data: [800, 900, 800, 750, 1200,1000, 1320],
+			        name:'idleNode',
+			        data: area_data.idle,
 			        type: 'line',
 			        areaStyle: {}
+			    },
+			    {
+			    	name:'closedNode',
+			    	data:area_data.closed,
+			    	type: 'line',
+			    	areaStyle: {}
+			    },
+			    {
+			    	name:'offNode',
+			    	data:area_data.off,
+			    	type:'line',
+			    	areaStyle: {}
+			    },
+			    {
+			    	name:'reserveNode',
+			    	data:area_data.reserve,
+			    	type:'line',
+			    	areaStyle: {}
 			    }
 			    ]
 			};
@@ -195,14 +290,13 @@
 			option = null;
 			option = {
 			    title: {
-			        text: '某楼盘销售情况',
-			        subtext: '纯属虚构'
+			        text: 'user'
 			    },
 			    tooltip: {
 			        trigger: 'axis'
 			    },
 			    legend: {
-			        data:['意向','预购','成交']
+			        data:['runUser','activeUser','pendUser']
 			    },
 			    toolbox: {
 			        show: true,
@@ -214,28 +308,28 @@
 			    xAxis: {
 			        type: 'category',
 			        boundaryGap: false,
-			        data: ['周一','周二','周三','周四','周五','周六','周日']
+			        data: x_ticks
 			    },
 			    yAxis: {
 			        type: 'value'
 			    },
 			    series: [{
-			        name: '成交',
+			        name: 'runUser',
 			        type: 'line',
 			        smooth: true,
-			        data: [10, 12, 21, 54, 260, 830, 710]
+			        data: user_line_data.run
 			    },
 			    {
-			        name: '预购',
+			        name: 'activeUser',
 			        type: 'line',
 			        smooth: true,
-			        data: [30, 182, 434, 791, 390, 30, 10]
+			        data: user_line_data.active
 			    },
 			    {
-			        name: '意向',
+			        name: 'pendUser',
 			        type: 'line',
 			        smooth: true,
-			        data: [1320, 1132, 601, 234, 120, 90, 20]
+			        data: user_line_data.pend
 			    }]
 			};
 			if (option && typeof option === "object") {
@@ -250,14 +344,13 @@
 			option = null;
 			option = {
 			    title: {
-			        text: '某楼盘销售情况',
-			        subtext: '纯属虚构'
+			        text: 'Job'
 			    },
 			    tooltip: {
 			        trigger: 'axis'
 			    },
 			    legend: {
-			        data:['意向','预购','成交']
+			        data:['pendJob','runJob']
 			    },
 			    toolbox: {
 			        show: true,
@@ -269,28 +362,22 @@
 			    xAxis: {
 			        type: 'category',
 			        boundaryGap: false,
-			        data: ['周一','周二','周三','周四','周五','周六','周日']
+			        data: x_ticks
 			    },
 			    yAxis: {
 			        type: 'value'
 			    },
 			    series: [{
-			        name: '成交',
+			        name: 'pendJob',
 			        type: 'line',
 			        smooth: true,
-			        data: [10, 12, 21, 54, 260, 830, 710]
+			        data: job_line_data.pend
 			    },
 			    {
-			        name: '预购',
+			        name: 'runJob',
 			        type: 'line',
 			        smooth: true,
-			        data: [30, 182, 434, 791, 390, 30, 10]
-			    },
-			    {
-			        name: '意向',
-			        type: 'line',
-			        smooth: true,
-			        data: [1320, 1132, 601, 234, 120, 90, 20]
+			        data: job_line_data.run
 			    }]
 			};
 			if (option && typeof option === "object") {
@@ -313,7 +400,7 @@
 			        }
 			    },
 			    legend: {
-			        data:['直接访问','邮件营销','联盟广告','视频广告','搜索引擎','百度','谷歌','必应','其他']
+			        data:['availableCore','pendCore','runCore']
 			    },
 			    grid: {
 			        left: '3%',
@@ -324,7 +411,7 @@
 			    xAxis : [
 			        {
 			            type : 'category',
-			            data : ['周一','周二','周三','周四','周五','周六','周日']
+			            data : x_ticks
 			        }
 			    ],
 			    yAxis : [
@@ -334,67 +421,22 @@
 			    ],
 			    series : [
 			        {
-			            name:'直接访问',
+			            name:'availableCore',
 			            type:'bar',
-			            data:[320, 332, 301, 334, 390, 330, 320]
+			            data: bar_data.available
 			        },
 			        {
-			            name:'邮件营销',
-			            type:'bar',
-			            stack: '广告',
-			            data:[120, 132, 101, 134, 90, 230, 210]
-			        },
-			        {
-			            name:'联盟广告',
-			            type:'bar',
-			            stack: '广告',
-			            data:[220, 182, 191, 234, 290, 330, 310]
-			        },
-			        {
-			            name:'视频广告',
-			            type:'bar',
-			            stack: '广告',
-			            data:[150, 232, 201, 154, 190, 330, 410]
-			        },
-			        {
-			            name:'搜索引擎',
-			            type:'bar',
-			            data:[862, 1018, 964, 1026, 1679, 1600, 1570],
-			            markLine : {
-			                lineStyle: {
-			                    normal: {
-			                        type: 'dashed'
-			                    }
-			                },
-			                data : [
-			                    [{type : 'min'}, {type : 'max'}]
-			                ]
-			            }
-			        },
-			        {
-			            name:'百度',
+			            name:'pendCore',
 			            type:'bar',
 			            barWidth : 5,
-			            stack: '搜索引擎',
-			            data:[620, 732, 701, 734, 1090, 1130, 1120]
+			            stack: 'availableCore',
+			            data:bar_data.pend
 			        },
 			        {
-			            name:'谷歌',
+			            name:'runCore',
 			            type:'bar',
-			            stack: '搜索引擎',
-			            data:[120, 132, 101, 134, 290, 230, 220]
-			        },
-			        {
-			            name:'必应',
-			            type:'bar',
-			            stack: '搜索引擎',
-			            data:[60, 72, 71, 74, 190, 130, 110]
-			        },
-			        {
-			            name:'其他',
-			            type:'bar',
-			            stack: '搜索引擎',
-			            data:[62, 82, 91, 84, 109, 110, 120]
+			            stack: 'availableCore',
+			            data:bar_data.run
 			        }
 			    ]
 			};
@@ -404,10 +446,17 @@
 			}
 		}
 
-		area_chart();
-		user_line_chart();
-		job_line_chart();
-		bar_chart();
+		function draw_all_chart(){
+			//console.log('refresh');
+			load_data();
+			area_chart();
+			user_line_chart();
+			job_line_chart();
+			bar_chart();
+		}
 
+		initial_data_var();  //首先要把相应的变量初始化
+		setInterval(draw_all_chart,10000);
+		//draw_all_chart();
 	</script>
 {% endblock %}
