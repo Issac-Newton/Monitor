@@ -176,7 +176,7 @@ def Anomaly_Detect(request):
 
 	error_index = ''  #有异常的点的下标集合，用空格分隔
 	for outlier in exceptions:    #每个outlier对象有一个value值可以限制一个点是不是离群值
-		if outlier['lof'] > 1.15:
+		if outlier['lof'] > 1.3:
 			error_index = error_index + ' ' + str(outlier['index'])
 
 	return JsonResponse({

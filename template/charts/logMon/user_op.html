@@ -9,7 +9,7 @@
 	.bubble text{
 		fill: black;
 		font-size: 14px;
-		font-weight: bold;
+		font-weight: 800;
 		font-family: arial;
 		text-anchor: middle;
 	}
@@ -34,7 +34,7 @@
 		<div class="col-md-6">
 			<div class="box box-primary">
 				<div class="box-header with-border">
-					<h3 class="box-title">Bubble Chart</h3>
+					<h3 class="box-title">用户访问次数</h3>
 				</div>
 				<div class="box-body">
 					<div id="Bubble">
@@ -46,7 +46,7 @@
 		<div class="col-md-6">
 			<div class="box box-info">
 				<div class="box-header with-border">
-					<h3 class="box-title">Dount Chart</h3>
+					<h3 class="box-title">用户操作类型及次数</h3>
 				</div>
 				<div class="box-body">
 					<div class = "chart" id="donut" style="height: 300px; position: relative;">
@@ -103,7 +103,8 @@
 
 		    var nodes = pack.nodes(user_data);
 				
-			//var color = d3.scale.category20c();
+			var color = d3.scale.category20();
+
 			let colors = d3
 		      .scale.ordinal()
 		      .range([
@@ -130,7 +131,7 @@
 
 			bubbles.append("circle")
 				.style("fill",function(d,i){
-					return colors(i + 1);
+					return color(i+1);
 				})
 				.attr("cx",function(d){ return d.x; })
 				.attr("cy",function(d){ return d.y; })

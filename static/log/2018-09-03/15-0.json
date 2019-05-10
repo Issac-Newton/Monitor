@@ -145,7 +145,8 @@
 			"Njobs":	[0, 0, 0, 0, 0, 0],
 			"Runjobs":	[0, 0, 0, 0, 0, 0],
 			"Pendjobs":	[0, 0, 0, 0, 0, 0]
-		}, {
+		},
+		{
 			"name":	"nsccgz",
 			"count":	1,
 			"Queuename":	[{
