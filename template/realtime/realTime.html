@@ -21,74 +21,70 @@
 	<Br/>
 	<Br/>
 	<div class="row">
-		<div class="col-md-6">
+		<section class="col-lg-6 connectedSortable">
 			<div class="box box-primary">
-				<div class="box-header with-border">
-					<h3 class="box-title">Node</h3>
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs pull-right">
+		                <li><a href="#" data-toggle="tab" onclick="NodeChoose(0)">面积图</a></li>
+		                <li><a href="#" data-toggle="tab" onclick="NodeChoose(1)">折线图</a></li>
 
-					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                		</button>
-					</div>
+		                <li class="pull-left header"><i class="fa fa-inbox"></i>Node</li>
+		            </ul>
+
+		            <div class="tab-content no-padding">
+		            	<div id="Node_Chart" style="height:250px"></div>
+		            </div>
 				</div>
-				<div class="box-body">
-	              <div class="chart">
-	                <div id="areaChart" style="height:250px"></div>
-	              </div>
-	            </div>
 			</div>
-
+		</section>
+		<section class="col-lg-6 connectedSortable">
 			<div class="box box-danger">
-				<div class="box-header with-border">
-					<h3 class="box-title">User</h3>
-
-					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                		</button>
-					</div>
-				</div>
-				<div class="box-body">
-					<div class="chart">
-						<div id="userLineChart" style="height:250px"> </div>
-					</div>
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs pull-right">
+		                <li><a href="#" data-toggle="tab" onclick="UserChoose(0)">面积图</a></li>
+		                <li><a href="#" data-toggle="tab" onclick="UserChoose(1)">折线图</a></li>
+		                <li class="pull-left header"><i class="fa fa-inbox"></i> User</li>
+		            </ul>
+		            <div class="tab-content no-padding">
+		            	<div id="User_Chart" style="height:250px"> </div>
+		            </div>
 				</div>
 			</div>
-		</div>
-
-		<div class="col-md-6">
+		</section>
+	</div>
+	<div class="row">
+		<div class="col-lg-6 connectedSortable">
 			<div class="box box-success">
 				<div class="box-header with-border">
-					<h3 class="box-title">Core</h3>
-
-					<div class="box-tools pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                		</button>
-					</div>
-				</div>
-
-				<div class="box-body">
-					<div class="chart">
-						<div id="barChart" style="height:250px"> </div>
+					<div class="nav-tabs-custom">
+						<ul class="nav nav-tabs pull-right">
+			                <li><a href="#" data-toggle="tab" onclick="CoreChoose(0)">柱状图</a></li>
+			                <li><a href="#" data-toggle="tab" onclick="CoreChoose(1)">折线图</a></li>
+			                <li class="pull-left header"><i class="fa fa-inbox"></i> Core</li>
+			            </ul>
+			            <div class="tab-content no-padding">
+			            	<div id="Core_Chart" style="height:250px"> </div>
+			            </div>
 					</div>
 				</div>
 			</div>
-
-			<div class="box box-info">
-            	<div class="box-header with-border">
-              		<h3 class="box-title">Job</h3>
-              		<div class="box-tools pull-right">
-		                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-		                </button>
-		            </div>
-              	</div>
-
-              	<div class="box-body">
-              		<div class="chart">
-              			<div id="jobLineChart" style="height:250px"> </div>
-              		</div>
-              	</div>
-            </div>
 		</div>
+		<div class="col-lg-6 connectedSortable">
+			<div class="box box-info">
+	        	<div class="box-header with-border">
+	          		<div class="nav-tabs-custom">
+						<ul class="nav nav-tabs pull-right">
+			                <li><a href="#" data-toggle="tab" onclick="JobChoose(0)">面积图</a></li>
+			                <li><a href="#" data-toggle="tab" onclick="JobChoose(1)">折线图</a></li>
+			                <li class="pull-left header"><i class="fa fa-inbox"></i> Job</li>
+			            </ul>
+			            <div class="tab-content no-padding">
+			            	<div id="Job_Chart" style="height:250px"> </div>
+			            </div>
+					</div>
+	          	</div>
+            </div>
+        </div>
 	</div>
 {% endblock %}
 
@@ -104,6 +100,8 @@
 		var name;
 		name = "era";
 		var x_ticks = ['0', '10', '20', '30', '40', '50'];      //时间这个轴需要改一下，让它随着时间变动而变动
+
+		var node_choose = 0,user_choose = 0,job_choose = 0,core_choose = 0;
 
 		var area_data = new Object(),
 			user_line_data = new Object(),
@@ -208,8 +206,8 @@
 			add_element(profile);
 		}
 
-		function area_chart(){
-			var dom = document.getElementById("areaChart");
+		function Node_area_chart(){
+			var dom = document.getElementById('Node_Chart');
 			var myChart = echarts.init(dom);
 			var app = {};
 			option = null;
@@ -283,15 +281,75 @@
 			}	
 		}
 		
-		function user_line_chart(){
-			var dom = document.getElementById("userLineChart");
+		function Node_line_chart(){
+			var dom = document.getElementById("Node_Chart");
 			var myChart = echarts.init(dom);
 			var app = {};
 			option = null;
 			option = {
-			    title: {
-			        text: 'user'
+			    tooltip: {
+			        trigger: 'axis'
 			    },
+			    legend: {
+			        data:['occupyNode','idleNode','closedNode','offNode','reserveNode']
+			    },
+			    toolbox: {
+			        show: true,
+			        feature: {
+			            magicType: {show: true, type: ['stack', 'tiled']},
+			            saveAsImage: {show: true}
+			        }
+			    },
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: x_ticks
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    series: [{
+			        name:'occupyNode',
+			        data: area_data.occupy,
+			        type: 'line',
+			        smooth: true
+			    },
+			    {
+			        name:'idleNode',
+			        data: area_data.idle,
+			        type: 'line',
+			        smooth: true
+			    },
+			    {
+			    	name:'closedNode',
+			    	data:area_data.closed,
+			    	type: 'line',
+			    	smooth: true
+			    },
+			    {
+			    	name:'offNode',
+			    	data:area_data.off,
+			    	type:'line',
+			    	smooth: true
+			    },
+			    {
+			    	name:'reserveNode',
+			    	data:area_data.reserve,
+			    	type:'line',
+			    	smooth: true
+			    }]
+			};
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		function user_line_chart(){
+			var dom = document.getElementById("User_Chart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
 			    tooltip: {
 			        trigger: 'axis'
 			    },
@@ -337,8 +395,70 @@
 			}
 		}
 
+		function user_area_chart(){
+			var dom = document.getElementById('User_Chart');
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: x_ticks
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    tooltip: {
+			        trigger: 'axis',
+			        axisPointer: {
+			            type: 'cross',
+			            label: {
+			                backgroundColor: '#6a7985'
+			            }
+			        }
+			    },
+			    legend:{
+			        data:['runUser','activeUser','pendUser']
+			    },
+			    toolbox: {
+			        feature: {
+			            saveAsImage: {}
+			        }
+			    },
+			    grid: {
+			        left: '3%',
+			        right: '4%',
+			        bottom: '3%',
+			        containLabel: true
+			    },
+			    series: [{
+			        name: 'runUser',
+			        type: 'line',
+			        data: user_line_data.run,
+			        areaStyle: {}
+			    },
+			    {
+			        name: 'activeUser',
+			        type: 'line',
+			        areaStyle: {},
+			        data: user_line_data.active
+			    },
+			    {
+			        name: 'pendUser',
+			        type: 'line',
+			        areaStyle: {},
+			        data: user_line_data.pend
+			    }]
+			};
+			
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
 		function job_line_chart(){
-			var dom = document.getElementById("jobLineChart");
+			var dom = document.getElementById("Job_Chart");
 			var myChart = echarts.init(dom);
 			var app = {};
 			option = null;
@@ -385,8 +505,64 @@
 			}
 		}
 
-		function bar_chart(){
-			var dom = document.getElementById("barChart");
+		function job_area_chart(){
+			var dom = document.getElementById('Job_Chart');
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: x_ticks
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    tooltip: {
+			        trigger: 'axis',
+			        axisPointer: {
+			            type: 'cross',
+			            label: {
+			                backgroundColor: '#6a7985'
+			            }
+			        }
+			    },
+			    legend:{
+			        data:['pendJob','runJob']
+			    },
+			    toolbox: {
+			        feature: {
+			            saveAsImage: {}
+			        }
+			    },
+			    grid: {
+			        left: '3%',
+			        right: '4%',
+			        bottom: '3%',
+			        containLabel: true
+			    },
+			    series: [{
+			        name: 'pendJob',
+			        type: 'line',
+			        data: job_line_data.pend,
+			        areaStyle: {}
+			    },
+			    {
+			        name: 'runJob',
+			        type: 'line',
+			        data: job_line_data.run,
+			        areaStyle: {}
+			    }]
+			};
+			
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		function core_bar_chart(){
+			var dom = document.getElementById("Core_Chart");
 			var myChart = echarts.init(dom);
 			var app = {};
 			option = null;
@@ -446,13 +622,122 @@
 			}
 		}
 
+		function core_line_chart(){
+			var dom = document.getElementById("Core_Chart");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+			    tooltip: {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['availableCore','pendCore','runCore']
+			    },
+			    toolbox: {
+			        show: true,
+			        feature: {
+			            magicType: {show: true, type: ['stack', 'tiled']},
+			            saveAsImage: {show: true}
+			        }
+			    },
+			    xAxis: {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: x_ticks
+			    },
+			    yAxis: {
+			        type: 'value'
+			    },
+			    series: [{
+			            name:'availableCore',
+			            type:'line',
+			            data: bar_data.available
+			        },
+			        {
+			            name:'pendCore',
+			            type:'line',
+			            data:bar_data.pend
+			        },
+			        {
+			            name:'runCore',
+			            type:'line',
+			            data:bar_data.run
+			        }]
+			};
+			if (option && typeof option === "object") {
+			    myChart.setOption(option, true);
+			}
+		}
+
+		function NodeChoose(choose){
+			if(node_choose != choose){
+				node_choose = choose;
+				draw_node_chart();
+			}
+		}
+
+		function UserChoose(choose){
+			if(choose != user_choose){
+				user_choose = choose;
+				draw_user_chart();
+			}
+		}
+
+		function CoreChoose(choose){
+			if(choose != core_choose){
+				core_choose = choose;
+				draw_core_chart(core_choose);
+			}
+		}
+
+		function JobChoose(choose){
+			if(choose != job_choose){
+				job_choose = choose;
+				draw_job_chart();
+			}
+		}
+
+		function draw_node_chart(){
+			if(node_choose == 0){
+				Node_area_chart();
+			}
+			else{
+				Node_line_chart();
+			}
+		}
+		function draw_user_chart(){
+			if(user_choose == 0){
+				user_area_chart();
+			}
+			else{
+				user_line_chart();
+			}
+		}
+		function draw_job_chart(){
+			if(job_choose == 0){
+				job_area_chart();
+			}
+			else{
+				job_line_chart();
+			}
+		}
+		function draw_core_chart(){
+			if(core_choose == 0){
+				core_bar_chart();
+			}
+			else{
+				core_line_chart();
+			}
+		}
+
 		function draw_all_chart(){
 			//console.log('refresh');
 			load_data();
-			area_chart();
-			user_line_chart();
-			job_line_chart();
-			bar_chart();
+			draw_node_chart();
+			draw_user_chart();
+			draw_job_chart();
+			draw_core_chart();
 		}
 
 		initial_data_var();  //首先要把相应的变量初始化
