@@ -13,6 +13,11 @@ import json
 def realTime(request):
 	return render(request,'realtime/realTime.html')
 
+def allCenter(request):
+	return render(request,'realtime/allcenter.html')
+
+
+
 @csrf_exempt
 def get_rt_data(request):
 	name = request.POST.get("name",None)
@@ -27,6 +32,26 @@ def get_rt_data(request):
 						'current':profile,
 						'status' :status
 					})
+
+	return JsonResponse({
+		'status':status
+		})
+
+@csrf_exempt
+def get_rt_all_data(request):
+	jsdata = get_data(url = 'http://api.cngrid.org/v2/show/cngrid/realtimeInfo')
+	dict,status = from_json_to_dict(jsdata)
+
+	#这里需要对数据做一个处理，需要的所有节点的数据
+	all_data = {}
+	if status != 3:
+		for profile in dict:
+			all_data[profile['nodeName']] = profile['runUser']
+
+		return JsonResponse({
+				'all_data':all_data,
+				'status' :status
+			})
 
 	return JsonResponse({
 		'status':status

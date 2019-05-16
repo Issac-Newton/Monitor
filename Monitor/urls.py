@@ -34,4 +34,6 @@ urlpatterns = [
 	path('detection/',logMon_views.Anomaly_Detect),
     path('real_time/',RealTime_views.realTime),
     path('get_rt_data/',RealTime_views.get_rt_data),
+    path('get_rt_all_data/',RealTime_views.get_rt_all_data),
+    path('allCenter/',RealTime_views.allCenter),
 ]

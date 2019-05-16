@@ -1,0 +1,384 @@
+{% extends 'Base/base_site.html' %}
+{% block style %}
+
+{% endblock %}
+
+{% block content_header %}
+	<section class="content-header">
+	  <h1>
+	    Dashboard
+	    <small>Control panel</small>
+	  </h1>
+	  <ol class="breadcrumb">
+	    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+	    <li class="active">Dashboard</li>
+	  </ol>
+	</section>
+{% endblock %}
+
+{% block content %}
+	<div id="container" style="height: 500%"> </div>
+{% endblock %}
+
+{% block js_function %}
+	<script type="text/javascript" src="/static/bower_components/chart.js/d3.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/echarts-gl.min.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/ecStat.min.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/dataTool.min.js"></script>
+	<script type="text/javascript" src="/static/bower_components/chart.js/simplex.js"></script>
+	<script type='text/javascript' src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+	<script type='text/javascript' src="/static/bower_components/chart.js/china.js"></script>
+
+	<script type='text/javascript'>
+		var dom = document.getElementById('container');
+    	var myChart = echarts.init(dom);
+		var name_title = "全国各超算中心实时情况"
+
+		var nameColor = " rgb(55, 75, 113)"
+		var name_fontFamily = '等线'
+		var subname_fontSize = 15
+		var name_fontSize = 18
+		var mapName = 'china';
+		var all_data;
+
+		var rt_data = [
+			{name:"nsccgz",value:0},
+		    {name:"gibh",value:0},
+		    {name:"era",value:0},
+		    {name:"iapcm",value:0},
+		    {name:"sjtu",value:0},
+		    {name:"ssc",value:0},
+		    {name:"hust",value:0},
+		    {name:"nscccs",value:0},
+		    {name:"nscctj",value:0},
+		    {name:"nsccwx",value:0},
+		    {name:"siat",value:0},
+		    {name:"gspcc",value:0},
+		    {name:"dicp",value:0},
+		    {name:"ustc",value:0},
+		    {name:"qdio",value:0},	
+		];
+		var geoCoordMap = {
+			'nsccgz':[113.396833,23.071725],
+			'gibh':[113.51964,23.164309],
+			'era':[116.638951,40.322888],
+			'iapcm':[116.260574,40.078502],
+			'sjtu':[121.445009,31.030844],
+			'ssc':[121.607141,31.217672],
+			'hust':[114.419826,30.518754],
+			'nscccs':[112.951347,28.18533],
+			'nscctj':[117.733827,39.049602],
+			'nsccwx':[120.25912,31.552731],
+			'siat':[113.996063,22.602672],
+			'gspcc':[103.849855,36.059432],
+			'dicp':[121.585372,38.89106],
+			'ustc':[117.275795,31.843017],
+			'qdio':[120.351772,36.061399]
+		};
+		var toolTipData = [ 
+		    {name:"广州超算中心(中山大学)",abbr:'nsccgz'},
+		    {name:"广州生医研究院",abbr:'gibh'},
+		    {name:"北龙超云",abbr:'era'},
+		    {name:"北京应用物理与计算数学研究院",abbr:'iapcm'},
+		    {name:"上海交大",abbr:'sjtu'},
+		    {name:"上海超算中心",abbr:'ssc'},
+		    {name:"武汉超算中心(华中科技大学)",abbr:'hust'},
+		    {name:"长沙超算中心(长沙大学)",abbr:'nscccs'},
+		    {name:"天津超算中心",abbr:'nscctj'},
+		    {name:"无锡超算中心",abbr:'nsccwx'},
+		    {name:"深圳超算中心",abbr:'siat'},
+		    {name:"甘肃省计算中心",abbr:'gspcc'},
+		    {name:"中国科学院大连化学物理研究所",abbr:'dicp'},
+		    {name:"中国科学技术大学超算中心",abbr:'ustc'},
+		    {name:"中国科学院海洋研究院",abbr:'qdio'},
+		];
+		/*获取地图数据*/
+		$.ajaxSettings.async = false;
+		myChart.showLoading();
+		var mapFeatures = echarts.getMap(mapName).geoJson.features;
+		myChart.hideLoading();
+		mapFeatures.forEach(function(v) {
+		    // 地区名称
+		    var name = v.properties.name;
+		    // 地区经纬度
+		    geoCoordMap[name] = v.properties.cp;
+		});
+
+		//console.log(data);
+		//console.log(toolTipData);
+		/*console.log('start');
+		console.log(geoCoordMap);
+		console.log('end');*/
+		var max = 200,
+		    min = 0; // todo 
+		var maxSize4Pin = 100,
+		    minSize4Pin = 20;
+
+		function get_rt_all_data(){
+			$.ajax({
+				type:'POST',
+				url:"http://127.0.0.1:8000/get_rt_all_data/",
+				data:{},
+				success:function(data){
+					status = data.status;
+					if(status != 3){
+						console.log('get data success');
+						all_data = data.all_data;
+					}
+					else{
+						alert('get data error');
+						all_data = null;
+					}
+				},
+				error:function(){
+					alert('get data error');
+					return null;
+				}
+			})
+		}
+
+		function load_data(){
+			get_rt_all_data();
+			while(!all_data || typeof(all_data)=="undefined"){
+				get_rt_all_data();
+			}
+
+			if(all_data.nsccgz && typeof(all_data.nsccgz)!="undefined") rt_data[0].value = all_data.nsccgz;
+			if(all_data.gibh && typeof(all_data.gibh)!="undefined") rt_data[1].value = all_data.gibh;
+			if(all_data.era && typeof(all_data.era)!="undefined") rt_data[2].value = all_data.era;
+			if(all_data.iapcm && typeof(all_data.iapcm)!="undefined") rt_data[3].value = all_data.iapcm;
+			if(all_data.sjtu && typeof(all_data.sjtu)!="undefined") rt_data[4].value = all_data.sjtu;
+			if(all_data.ssc && typeof(all_data.ssc)!="undefined") rt_data[5].value = all_data.ssc;
+			if(all_data.hust && typeof(all_data.hust)!="undefined") rt_data[6].value = all_data.hust;
+			if(all_data.nscccs && typeof(all_data.nscccs)!="undefined") rt_data[7].value = all_data.nscccs;
+			if(all_data.nscctj && typeof(all_data.nscctj)!="undefined") rt_data[8].value = all_data.nscctj;
+			if(all_data.nsccwx && typeof(all_data.nsccwx)!="undefined") rt_data[9].value = all_data.nsccwx;
+			if(all_data.siat && typeof(all_data.siat)!="undefined") rt_data[10].value = all_data.siat;
+			if(all_data.gspcc && typeof(all_data.gspcc)!="undefined") rt_data[11].value = all_data.gspcc;
+			if(all_data.dicp && typeof(all_data.dicp)!="undefined") rt_data[12].value = all_data.dicp;
+			if(all_data.ustc && typeof(all_data.ustc)!="undefined") rt_data[13].value = all_data.ustc;
+			if(all_data.qdio && typeof(all_data.qdio)!="undefined") rt_data[14].value = all_data.qdio;
+			//console.log(rt_data);
+		}
+		load_data();
+		var convertData = function(data) {
+		    var res = [];
+		    for (var i = 0; i < data.length; i++) {
+		        var geoCoord = geoCoordMap[data[i].name];
+		        if (geoCoord) {
+		            res.push({
+		                name: data[i].name,
+		                value: geoCoord.concat(data[i].value),
+		            });
+		        }
+		    }
+		    return res;
+		};
+		option = {
+		    title: {
+		        text: name_title,
+		        subtext: '',
+		        x: 'center',
+		        textStyle: {
+		            color: nameColor,
+		            fontFamily: name_fontFamily,
+		            fontSize: name_fontSize
+		        },
+		        subtextStyle:{
+		            fontSize:subname_fontSize,
+		            fontFamily:name_fontFamily
+		        }
+		    },
+		    tooltip: {
+		    	show:'false',
+		        trigger: 'item',
+		        formatter: function(params) {
+		            if (typeof(params.value)[2] == "undefined") {
+		                var toolTiphtml = ''
+		                for(var i = 0;i<toolTipData.length;i++){
+		                    if(params.name==toolTipData[i].abbr){
+		                        toolTiphtml += toolTipData[i].name+':<br>';
+		                        toolTiphtml += 'runUser:';
+		                        toolTiphtml += rt_data[i].value;
+		                    }
+		                }
+		                return toolTiphtml;
+		            } else {
+		                var toolTiphtml = ''
+		                for(var i = 0;i<toolTipData.length;i++){
+		                    if(params.name==toolTipData[i].abbr){
+		                        toolTiphtml += toolTipData[i].name+':<br>';
+		                        toolTiphtml += 'runUser:';
+		                        toolTiphtml += rt_data[i].value;
+		                    }
+		                }
+		                return toolTiphtml;
+		            }
+		        }
+		    },
+		    // legend: {
+		    //     orient: 'vertical',
+		    //     y: 'bottom',
+		    //     x: 'right',
+		    //     data: ['credit_pm2.5'],
+		    //     textStyle: {
+		    //         color: '#fff'
+		    //     }
+		    // },
+		    visualMap: {
+		        show: true,
+		        min: 0,
+		        max: 1000,
+		        left: 'left',
+		        top: 'bottom',
+		        text: ['高', '低'], // 文本，默认为数值文本
+		        calculable: true,
+		        seriesIndex: [1],
+		        inRange: {
+		            // color: ['#3B5077', '#031525'] // 蓝黑
+		            // color: ['#ffc0cb', '#800080'] // 红紫
+		            // color: ['#3C3B3F', '#605C3C'] // 黑绿
+		            // color: ['#0f0c29', '#302b63', '#24243e'] // 黑紫黑
+		            // color: ['#23074d', '#cc5333'] // 紫红
+		            color: ['#00467F', '#A5CC82'] // 蓝绿
+		            // color: ['#1488CC', '#2B32B2'] // 浅蓝
+		            // color: ['#00467F', '#A5CC82'] // 蓝绿
+		            // color: ['#00467F', '#A5CC82'] // 蓝绿
+		            // color: ['#00467F', '#A5CC82'] // 蓝绿
+		            // color: ['#00467F', '#A5CC82'] // 蓝绿
+
+		        }
+		    },
+		    /*工具按钮组*/
+		    // toolbox: {
+		    //     show: true,
+		    //     orient: 'vertical',
+		    //     left: 'right',
+		    //     top: 'center',
+		    //     feature: {
+		    //         dataView: {
+		    //             readOnly: false
+		    //         },
+		    //         restore: {},
+		    //         saveAsImage: {}
+		    //     }
+		    // },
+		    geo: {
+		        show: true,
+		        map: mapName,
+		        label: {
+		            normal: {
+		                show: false
+		            },
+		            emphasis: {
+		                show: false,
+		            }
+		        },
+		        roam: true,
+		        itemStyle: {
+		            normal: {
+		                areaColor: '#031525',
+		                borderColor: '#3B5077',
+		            },
+		            emphasis: {
+		                areaColor: '#2B91B7',
+		            }
+		        }
+		    },
+		    series: [{
+		            name: '散点',
+		            type: 'scatter',
+		            coordinateSystem: 'geo',
+		            data: convertData(rt_data),
+		            symbolSize: function(val) {
+		                return val[2] / 10;
+		            },
+		            label: {
+		                normal: {
+		                    formatter: '{b}',
+		                    position: 'right',
+		                    show: true
+		                },
+		                emphasis: {
+		                    show: true
+		                }
+		            },
+		            itemStyle: {
+		                normal: {
+		                    color: '#05C3F9'
+		                }
+		            }
+		        },
+		        {
+		            type: 'map',
+		            map: mapName,
+		            geoIndex: 0,
+		            aspectScale: 0.75, //长宽比
+		            showLegendSymbol: false, // 存在legend时显示
+		            label: {
+		                normal: {
+		                    show: true
+		                },
+		                emphasis: {
+		                    show: false,
+		                    textStyle: {
+		                        color: '#fff'
+		                    }
+		                }
+		            },
+		            roam: true,
+		            itemStyle: {
+		                normal: {
+		                    areaColor: '#323c48',
+		                    borderColor: '#111',
+		                },
+		                emphasis: {
+		                    areaColor: '#2a333d'
+		                }
+		            },
+		            animation: false,
+		            data: rt_data
+		        },
+		        {
+		            name: '点',
+		            type: 'scatter',
+		            coordinateSystem: 'geo',
+		            symbol: 'pin', //气泡
+		            symbolSize: function(val) {
+		                var a = (maxSize4Pin - minSize4Pin) / (max - min);
+		                var b = minSize4Pin - a * min;
+		                b = maxSize4Pin - a * max;
+		                return a * val[2] + b;
+		            },
+		            label: {
+		                normal: {
+		                    show: true,
+		                    formatter:'{@[2]}',
+		                    textStyle: {
+		                        color: '#fff',
+		                        fontSize: 9,
+		                    }
+		                }
+		            },
+		            itemStyle: {
+		                normal: {
+		                    color: '#F62157', //标志颜色
+		                }
+		            },
+		            zlevel: 6,
+		            data: convertData(rt_data),
+		        }
+		    ]
+		};
+		myChart.setOption(option);
+
+		//点击地图上任一小块都会有反应。
+		myChart.on('click',function(params){
+			//console.log(params);
+			console.log(params.name);
+			localStorage.setItem("center",params.name);
+			window.location.href = "http://127.0.0.1:8000/real_time/";
+		})
+	</script> 
+{% endblock %}

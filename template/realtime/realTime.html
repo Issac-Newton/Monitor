@@ -94,11 +94,14 @@
 	<script src="/static/bower_components/time_choose/jquery-1.12.3.min.js"></script>
 	<script type="text/javascript" src="/static/bower_components/chart.js/echarts.min.js"></script>
 	<script type="text/javascript">
+		var center_name = localStorage.getItem("center");
 		const all_length = 6; //现在设置为6个，最多存6个数据
 		var allData = [];  //这个里面最多存6个数据
 		var status,profile;
-		var name;
-		name = "era";
+		var name = localStorage.getItem("center");
+		if(!name || typeof(name)=="undefined"){
+			name = "era";
+		}
 		var x_ticks = ['0', '10', '20', '30', '40', '50'];      //时间这个轴需要改一下，让它随着时间变动而变动
 
 		var node_choose = 0,user_choose = 0,job_choose = 0,core_choose = 0;
