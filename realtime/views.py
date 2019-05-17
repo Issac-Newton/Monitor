@@ -39,6 +39,13 @@ def get_rt_data(request):
 
 @csrf_exempt
 def get_rt_all_data(request):
+	selector = request.POST.get('selector',None)
+	if selector == None:
+		print("selector error")
+		return JsonResponse({
+		'status':3
+		})
+
 	jsdata = get_data(url = 'http://api.cngrid.org/v2/show/cngrid/realtimeInfo')
 	dict,status = from_json_to_dict(jsdata)
 
@@ -46,7 +53,7 @@ def get_rt_all_data(request):
 	all_data = {}
 	if status != 3:
 		for profile in dict:
-			all_data[profile['nodeName']] = profile['runUser']
+			all_data[profile['nodeName']] = profile[selector]
 
 		return JsonResponse({
 				'all_data':all_data,
